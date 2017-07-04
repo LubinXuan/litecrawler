@@ -1,13 +1,11 @@
 package me.robin.crawler.p2peye;
 
 import me.robin.crawler.BaseMatchPageProcessor;
-import me.robin.crawler.Const;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.selector.Selectable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +30,7 @@ public class PlatformListPageProcessor extends BaseMatchPageProcessor {
         Elements platforms = document.select("#c-pfinfo>li");
         for (Element platform:platforms) {
             Map<String, String> extra = new HashMap<>();
-            extra.put(Const.platformName,platform.select("a.c-pfname").text());
+            //extra.put(Const.platformName,platform.select("a.c-pfname").text());
 
             platform.select("a.c-pflabeler").text();
         }

@@ -1,5 +1,6 @@
 package me.robin.crawler;
 
+import me.robin.crawler.wdzj.PlatformDetailHtmlProcessor;
 import me.robin.crawler.wdzj.PlatformDetailProcessor;
 import me.robin.crawler.wdzj.PlatformListPageProcessor;
 import us.codecraft.webmagic.Site;
@@ -17,6 +18,7 @@ public class Application {
         CompositePageProcessor pageProcessor = new CompositePageProcessor(Site.me());
         pageProcessor.addSubPageProcessor(new PlatformListPageProcessor());
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());
+        pageProcessor.addSubPageProcessor(new PlatformDetailHtmlProcessor());
         Spider spider = Spider.create(pageProcessor).thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
         spider.setExitWhenComplete(false);
         SpiderMonitor.instance().register(spider);

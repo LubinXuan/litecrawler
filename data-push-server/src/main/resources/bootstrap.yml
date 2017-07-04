@@ -1,0 +1,6 @@
+ spring:
+   http:
+     encoding:
+       charset: utf-8
+       forceResponse: true
+       forceRequest: true

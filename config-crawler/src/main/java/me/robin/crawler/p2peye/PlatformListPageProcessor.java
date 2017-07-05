@@ -1,12 +1,11 @@
 package me.robin.crawler.p2peye;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import me.robin.crawler.common.BaseMatchPageProcessor;
-import me.robin.crawler.Param;
-import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.selector.HtmlNode;
-import us.codecraft.webmagic.selector.Selectable;
 
 /**
  * Created by LubinXuan on 2017/6/3.
@@ -14,20 +13,18 @@ import us.codecraft.webmagic.selector.Selectable;
 public class PlatformListPageProcessor extends BaseMatchPageProcessor {
 
     public PlatformListPageProcessor() {
-        super("http://www.p2peye.com/platform/all/");
+        super("http://lu.p2peye.com/index/getPlatform");
     }
 
     @Override
     public MatchOther processPage(Page page) {
-        String nextUrl = page.getHtml().$("div.c-page a:containsOwn(下一页)", "abs:href").get();
-        if (StringUtils.isNotBlank(nextUrl)) {
-            page.addTargetRequest(nextUrl);
+        JSONArray platforms = (JSONArray) JSONPath.read(page.getRawText(), "data");
+        for (int i = 0; i < platforms.size(); i++) {
+            JSONObject platform = platforms.getJSONObject(i);
+            Request request = new Request("http://" + platform.getString("domain_body") + ".p2peye.com");
+            page.addTargetRequest(request);
         }
-        HtmlNode platforms = (HtmlNode) page.getHtml().$("li.ui-result-item");
-        for (Selectable platform : platforms.nodes()) {
-            Request request = new Request(platform.$("a.ui-result-pname", "href").get());
-            request.putExtra(Param.plat.name, platform.$("a.ui-result-pname", "text"));
-        }
+        page.getResultItems().setSkip(true);
         return MatchOther.NO;
     }
 }

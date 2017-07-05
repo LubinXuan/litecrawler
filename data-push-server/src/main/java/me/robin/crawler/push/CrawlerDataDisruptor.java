@@ -48,6 +48,7 @@ public class CrawlerDataDisruptor {
 
     private PrivateKey privateKey;
 
+
     private CrawlerDataDisruptor() {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
         int ringBufferSize = (int) Math.pow(2, 17); // RingBuffer 大小，必须是 2 的 N 次方；
@@ -146,11 +147,6 @@ public class CrawlerDataDisruptor {
         }
         byte[] signData = cipher().doFinal(builder.toString().getBytes(Charset.forName("utf-8")));
         crawlerDataEvent.data.put("sign", new String(signData, Charset.forName("utf-8")));
-    }
-
-    public void pushData(String dataType, String jsonData) {
-        JSONObject data = JSON.parseObject(jsonData);
-        this.pushData(dataType, data);
     }
 
     public void pushData(String dataType, JSONObject jsonData) {

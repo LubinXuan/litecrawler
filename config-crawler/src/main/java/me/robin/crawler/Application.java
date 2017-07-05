@@ -28,7 +28,7 @@ public class Application {
         pageProcessor.addSubPageProcessor(new CommentProcessor());
         Spider spider = Spider.create(pageProcessor)
                 .thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
-        spider.addPipeline(new DataPushPipeline());
+        spider.addPipeline(new DataPushPipeline("WDZJ"));
         spider.setSpiderListeners(new ArrayList<>());
         spider.getSpiderListeners().add(new RateDynamicListener(spider, 3, 10));
         spider.setExitWhenComplete(false);

@@ -1,11 +1,12 @@
 package me.robin.crawler.p2peye;
 
 import me.robin.crawler.BaseMatchPageProcessor;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import me.robin.crawler.Param;
+import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.selector.HtmlNode;
+import us.codecraft.webmagic.selector.Selectable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,18 +22,14 @@ public class PlatformListPageProcessor extends BaseMatchPageProcessor {
 
     @Override
     public MatchOther processPage(Page page) {
-        Document document = Jsoup.parse(page.getRawText(),page.getRequest().getUrl());
-        Elements nextPage = document.select("div.c-page a:containsOwn(下一页)");
-        if (null != nextPage) {
-            page.addTargetRequest(nextPage.attr("abs:href"));
+        String nextUrl = page.getHtml().$("div.c-page a:containsOwn(下一页)", "abs:href").get();
+        if (StringUtils.isNotBlank(nextUrl)) {
+            page.addTargetRequest(nextUrl);
         }
-
-        Elements platforms = document.select("#c-pfinfo>li");
-        for (Element platform:platforms) {
-            Map<String, String> extra = new HashMap<>();
-            //extra.put(Const.platformName,platform.select("a.c-pfname").text());
-
-            platform.select("a.c-pflabeler").text();
+        HtmlNode platforms = (HtmlNode) page.getHtml().$("li.ui-result-item");
+        for (Selectable platform : platforms.nodes()) {
+            Request request = new Request(platform.$("a.ui-result-pname", "href").get());
+            request.putExtra(Param.plat.name, platform.$("a.ui-result-pname", "text"));
         }
         return MatchOther.NO;
     }

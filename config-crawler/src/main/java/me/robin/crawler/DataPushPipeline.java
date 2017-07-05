@@ -30,10 +30,14 @@ public class DataPushPipeline implements Pipeline {
 
     private HttpHost httpHost = new HttpHost("127.0.0.1", 8080);
 
-    public DataPushPipeline() {
+    private final String sourceType;
+
+    public DataPushPipeline(String sourceType) {
+        this.sourceType = sourceType;
     }
 
-    public DataPushPipeline(String host, int port) {
+    public DataPushPipeline(String sourceType, String host, int port) {
+        this(sourceType);
         this.httpHost = new HttpHost(host, port);
     }
 
@@ -48,6 +52,7 @@ public class DataPushPipeline implements Pipeline {
         HttpPost post = new HttpPost("/push/data");
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));
         post.setHeader("data-type", dataType);
+        post.setHeader("source-type", sourceType);
         HttpResponse response = null;
         int maxTry = 10;
         Throwable throwable = null;

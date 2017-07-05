@@ -58,16 +58,16 @@ public class PlatformListPageProcessor extends RegexProcessor {
             request.putExtra(Param.plat.score, plat.getFloatValue("zonghezhishu"));
             request.putExtra(Param.plat.yield, plat.getFloatValue("platEarnings"));
             request.putExtra(Param.source, Param.PlatName.wdzj);
-            int platStatus = plat.getIntValue("platStatus");
+            //int platStatus = plat.getIntValue("platStatus");
             request.addHeader("referer", page.getRequest().getUrl());
             page.addTargetRequest(request);
-            if (1 == platStatus || platStatus == 3) {
-                request = new Request(CommentProcessor.commentUrl(platId, 1));
-                request.setMethod(HttpConstant.Method.POST);
-                request.putExtra(Param.comment.platname, platName);
-                request.addHeader("referer", "http://www.wdzj.com/dangan/" + plat.getString("platNamePin") + "/dianping/");
-                page.addTargetRequest(request);
-            }
+            //if (1 == platStatus || platStatus == 3) {
+            request = new Request(CommentProcessor.commentUrl(platId, 1));
+            request.setMethod(HttpConstant.Method.POST);
+            request.putExtra(Param.comment.platname, platName);
+            request.addHeader("referer", "http://www.wdzj.com/dangan/" + plat.getString("platNamePin") + "/dianping/");
+            page.addTargetRequest(request);
+            //}
         }
         page.getResultItems().setSkip(true);
         return MatchOther.NO;

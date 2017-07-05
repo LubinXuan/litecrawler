@@ -46,7 +46,7 @@ public class CommentProcessor extends RegexProcessor {
         List<Map<String, Object>> commentList = new ArrayList<>();
         for (Selectable selectable : htmlNode.nodes()) {
             int id = Integer.parseInt(StringUtils.replace(selectable.$("span[id^=useful_]", "id").get(),"useful_",""));
-            if (null != commentLimit && id < commentLimit) {
+            if (null != commentLimit && id <= commentLimit) {
                 break;
             }
             String remark = selectable.$("div.commentFont p.font", "allText").get();

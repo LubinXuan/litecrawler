@@ -1,5 +1,6 @@
 package me.robin.crawler;
 
+import me.robin.crawler.common.BizSpider;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RateDynamicListener;
 import me.robin.crawler.wdzj.CommentProcessor;
@@ -28,7 +29,7 @@ public class Application {
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());
         pageProcessor.addSubPageProcessor(new PlatformDetailHtmlProcessor());
         pageProcessor.addSubPageProcessor(new CommentProcessor());
-        Spider spider = Spider.create(pageProcessor)
+        Spider spider = BizSpider.create(pageProcessor)
                 .thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
         spider.addPipeline(new DataPushPipeline("WDZJ"));
         spider.setSpiderListeners(new ArrayList<>());

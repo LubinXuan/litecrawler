@@ -1,10 +1,11 @@
 package me.robin.crawler.wdzj;
 
-import com.alibaba.fastjson.util.TypeUtils;
 import me.robin.crawler.Param;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.selector.CssSelector;
@@ -21,6 +22,8 @@ import java.util.Map;
  * Created by Lubin.Xuan on 2017-07-05.
  */
 public class CommentProcessor extends RegexProcessor {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommentProcessor.url);
 
     private static final String url = "http://www.wdzj.com/front/dianpingInfo/{pid}/20/{page}";
 
@@ -43,9 +46,13 @@ public class CommentProcessor extends RegexProcessor {
     public MatchOther processPage(Page page) {
         HtmlNode htmlNode = (HtmlNode) page.getHtml().select(new CssSelector("ul.commentList div.bor"));
         Integer commentLimit = (Integer) page.getRequest().getExtra(Param.comment_id_limit);
+        Integer commentCrawled = (Integer) page.getRequest().getExtra(Param.comment_crawled);
+        if (null == commentCrawled) {
+            commentCrawled = 0;
+        }
         List<Map<String, Object>> commentList = new ArrayList<>();
         for (Selectable selectable : htmlNode.nodes()) {
-            int id = Integer.parseInt(StringUtils.replace(selectable.$("span[id^=useful_]", "id").get(),"useful_",""));
+            int id = Integer.parseInt(StringUtils.replace(selectable.$("span[id^=useful_]", "id").get(), "useful_", ""));
             if (null != commentLimit && id <= commentLimit) {
                 break;
             }
@@ -66,6 +73,7 @@ public class CommentProcessor extends RegexProcessor {
             }
             commentMap.put(Param.comment.praise, PRAISE_ALIAS.getOrDefault(praise, praise));
             commentList.add(commentMap);
+            commentCrawled++;
         }
         page.putField(DataPushPipeline.DATA_LIST, commentList);
 
@@ -75,8 +83,11 @@ public class CommentProcessor extends RegexProcessor {
             Request request = new Request(page.getHtml().$("div.pageList", "url") + nextPage);
             request.setMethod(HttpConstant.Method.POST);
             request.setExtras(page.getRequest().getExtras());
+            request.putExtra(Param.comment_crawled, commentCrawled);
             request.addHeader("referer", page.getRequest().getHeaders().get("referer"));
             page.addTargetRequest(request);
+        } else {
+            logger.info("评论爬取完成,共爬取评论数;{}   <-{}", commentCrawled, page.getRequest().getUrl());
         }
         return MatchOther.NO;
     }

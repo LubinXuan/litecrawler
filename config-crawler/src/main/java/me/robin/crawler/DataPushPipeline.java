@@ -17,6 +17,7 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Lubin.Xuan on 2017-07-05.
@@ -39,7 +40,6 @@ public class DataPushPipeline implements Pipeline {
     @Override
     public void process(ResultItems resultItems, Task task) {
         Map<String, Object> data = resultItems.getAll();
-        data.remove(RetryListener.RETRY);
         String dataType = (String) data.remove(Param.dataType);
         this.push(dataType, data);
     }
@@ -49,18 +49,35 @@ public class DataPushPipeline implements Pipeline {
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));
         post.setHeader("data-type", dataType);
         HttpResponse response = null;
-        try {
-            response = client.execute(httpHost, post);
-            if (response.getStatusLine().getStatusCode() != 200) {
-                logger.warn("数据上传返回码异常:{}", response.getStatusLine().getStatusCode());
+        int maxTry = 10;
+        Throwable throwable = null;
+        int statusCode = 0;
+        while (maxTry > 0) {
+            try {
+                response = client.execute(httpHost, post);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    return;
+                }
+                statusCode = response.getStatusLine().getStatusCode();
+            } catch (IOException e) {
+                throwable = e;
+            } finally {
+                if (null != response) {
+                    EntityUtils.consumeQuietly(response.getEntity());
+                }
+                post.releaseConnection();
             }
-        } catch (IOException e) {
-            logger.warn("数据上传异常", e);
-        } finally {
-            if (null != response) {
-                EntityUtils.consumeQuietly(response.getEntity());
+            maxTry--;
+            try {
+                TimeUnit.SECONDS.sleep(10 - maxTry);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            post.releaseConnection();
+        }
+        if (null != throwable) {
+            logger.warn("数据上传异常,Exception:{}", throwable.getMessage());
+        } else {
+            logger.warn("数据上传返回码异常:{}", statusCode);
         }
     }
 }

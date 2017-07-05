@@ -10,12 +10,22 @@ import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Lubin.Xuan on 2017-07-05.
  */
 public class CommentProcessor extends RegexProcessor {
 
     private static final String url = "http://www.wdzj.com/front/dianpingInfo/{pid}/20/{page}";
+
+    private static final Map<String, String> PRAISE_ALIAS = new HashMap<>();
+
+    static {
+        PRAISE_ALIAS.put("推荐", "好");
+        PRAISE_ALIAS.put("不推荐", "差");
+    }
 
     public static String commentUrl(String platId, int page) {
         return StringUtils.replaceEach(url, new String[]{"{pid}", "{page}"}, new String[]{platId, Integer.toString(page)});
@@ -37,8 +47,13 @@ public class CommentProcessor extends RegexProcessor {
             page.putField(Param.comment.remark, remark);
             page.putField(Param.comment.remarktime, remarkTime + " 00:00:00");
             page.putField(Param.comment.username, userName);
-            page.putField(Param.source, Param.Plat.wdzj);
+            page.putField(Param.source, Param.PlatName.wdzj);
             page.putField(Param.dataType, Param.comment.class.getSimpleName());
+            String praise = StringUtils.trim(selectable.$("span.tags", "text").get());
+            if (StringUtils.isBlank(praise)) {
+                praise = "一般";
+            }
+            page.putField(Param.comment.praise, PRAISE_ALIAS.getOrDefault(praise, praise));
         }
 
         String currentPage = page.getHtml().$("div.pageList a.on", "pagenumber").get();

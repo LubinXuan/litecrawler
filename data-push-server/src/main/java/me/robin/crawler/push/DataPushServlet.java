@@ -2,6 +2,7 @@ package me.robin.crawler.push;
 
 import org.apache.commons.io.IOUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,11 +16,15 @@ import java.nio.charset.Charset;
  */
 @WebServlet(name = "推送数据接收网关", value = "/push/data")
 public class DataPushServlet extends HttpServlet {
+
+    @Resource
+    private CrawlerDataDisruptor crawlerDataDisruptor;
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String data = IOUtils.toString(req.getInputStream(), Charset.forName("utf-8"));
         String dataType = req.getHeader("data-type");
-        CrawlerDataDisruptor.ins.pushData(dataType, data);
+        crawlerDataDisruptor.pushData(dataType, data);
     }
 
     @Override

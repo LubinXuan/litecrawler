@@ -11,7 +11,6 @@ import us.codecraft.webmagic.monitor.SpiderMonitor;
 
 import javax.management.JMException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by LubinXuan on 2017/6/3.
@@ -19,8 +18,9 @@ import java.util.Arrays;
 public class Application {
     public static void main(String[] args) throws JMException {
         Site site = Site.me();
-        site.setDomain(Param.Plat.wdzj);
-        site.setSleepTime(2);
+        site.setDomain(Param.PlatName.wdzj);
+        site.setSleepTime(4);
+        site.setCycleRetryTimes(4);
         CompositePageProcessor pageProcessor = new CompositePageProcessor(site);
         pageProcessor.addSubPageProcessor(new PlatformListPageProcessor());
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());
@@ -30,7 +30,7 @@ public class Application {
                 .thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
         spider.addPipeline(new DataPushPipeline());
         spider.setSpiderListeners(new ArrayList<>());
-        spider.getSpiderListeners().add(new RetryListener(spider, 3));
+        spider.getSpiderListeners().add(new RateDynamicListener(spider, 3, 10));
         spider.setExitWhenComplete(false);
         SpiderMonitor.instance().register(spider);
         spider.start();

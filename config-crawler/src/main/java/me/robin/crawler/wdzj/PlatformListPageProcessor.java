@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,21 +48,28 @@ public class PlatformListPageProcessor extends RegexProcessor {
 
         JSONArray list = jsonObject.getJSONArray("list");
         for (int i = 0; i < list.size(); i++) {
-            Map<String, Object> extra = new HashMap<>();
             JSONObject plat = list.getJSONObject(i);
-            extra.put(Param.plat.name, plat.getString("platName"));
-            extra.put(Param.plat.onlinetime, plat.getString("onlineDate") + " 00:00:00");
-            extra.put(Param.plat.rank, plat.getIntValue("zonghezhishuRank"));
-            extra.put(Param.plat.score, plat.getFloatValue("zonghezhishu"));
-            extra.put(Param.plat.yield, plat.getFloatValue("platEarnings"));
             String platId = plat.getString("platId");
             Request request = new Request(PlatformDetailProcessor.url + platId);
-            request.setExtras(extra);
+            String platName = plat.getString("platName");
+            request.putExtra(Param.plat.name, platName);
+            request.putExtra(Param.plat.onlinetime, plat.getString("onlineDate") + " 00:00:00");
+            request.putExtra(Param.plat.rank, plat.getIntValue("zonghezhishuRank"));
+            request.putExtra(Param.plat.score, plat.getFloatValue("zonghezhishu"));
+            request.putExtra(Param.plat.yield, plat.getFloatValue("platEarnings"));
+            request.putExtra(Param.source, Param.Plat.wdzj);
+            int platStatus = plat.getIntValue("platStatus");
             request.addHeader("referer", page.getRequest().getUrl());
             page.addTargetRequest(request);
+            if (1 == platStatus || platStatus == 3) {
+                request = new Request(CommentProcessor.commentUrl(platId, 1));
+                request.setMethod(HttpConstant.Method.POST);
+                request.putExtra(Param.comment.platname, platName);
+                request.addHeader("referer", "http://www.wdzj.com/dangan/" + plat.getString("platNamePin") + "/dianping/");
+                page.addTargetRequest(request);
+            }
         }
-
-
+        page.getResultItems().setSkip(true);
         return MatchOther.NO;
     }
 }

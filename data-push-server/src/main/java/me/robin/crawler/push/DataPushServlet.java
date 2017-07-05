@@ -18,7 +18,8 @@ public class DataPushServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String data = IOUtils.toString(req.getInputStream(), Charset.forName("utf-8"));
-        CrawlerDataDisruptor.ins.pushData(data);
+        String dataType = req.getHeader("data-type");
+        CrawlerDataDisruptor.ins.pushData(dataType, data);
     }
 
     @Override

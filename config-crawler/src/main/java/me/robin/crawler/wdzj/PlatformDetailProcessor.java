@@ -32,14 +32,14 @@ public class PlatformDetailProcessor extends BaseMatchPageProcessor {
         if (status) {
             JSONObject platShujuMap = (JSONObject) JSONPath.eval(data, "data.platShujuMap");
             JSONObject platOuterVo = (JSONObject) JSONPath.eval(data, "data.platOuterVo");
-            page.getRequest().getExtras().put(Param.plat.homelink, platOuterVo.getString("platUrl"));
-            page.getRequest().getExtras().put(Param.plat.logo, platOuterVo.getString("platLogoUrl"));
+            page.getRequest().putExtra(Param.plat.homelink, platOuterVo.getString("platUrl"));
+            page.getRequest().putExtra(Param.plat.logo, platOuterVo.getString("platLogoUrl"));
             if (null == platShujuMap) {
                 platShujuMap = EMPTY;
             }
-            page.getRequest().getExtras().put(Param.plat.totaluser, platShujuMap.getIntValue("bidder_num"));
-            page.getRequest().getExtras().put(Param.plat.totaldeal, platShujuMap.getFloatValue("amount"));
-            page.getRequest().getExtras().put(Param.plat.stage, platShujuMap.getFloatValue("loan_period"));
+            page.getRequest().putExtra(Param.plat.totaluser, platShujuMap.getIntValue("bidder_num"));
+            page.getRequest().putExtra(Param.plat.totaldeal, platShujuMap.getFloatValue("amount"));
+            page.getRequest().putExtra(Param.plat.stage, platShujuMap.getFloatValue("loan_period"));
 
 
             Request request = new Request(PlatformDetailHtmlProcessor.url + platOuterVo.getString("platNamePin") + "/");
@@ -49,7 +49,7 @@ public class PlatformDetailProcessor extends BaseMatchPageProcessor {
         } else {
             logger.warn("网贷之家详情数据获取异常:{} {}", page.getRequest().getUrl(), data.getString("message"));
         }
-
+        page.getResultItems().setSkip(true);
         return MatchOther.NO;
     }
 }

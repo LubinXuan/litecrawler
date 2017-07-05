@@ -17,11 +17,17 @@ import java.util.concurrent.Executors;
  */
 public class CrawlerDataDisruptor {
 
-    public class CrawlerDataEvent {
+    class CrawlerDataEvent {
         private String data;
 
-        public void setData(String data) {
+        private String dataType;
+
+        void setData(String data) {
             this.data = data;
+        }
+
+        void setDataType(String dataType) {
+            this.dataType = dataType;
         }
     }
 
@@ -43,8 +49,10 @@ public class CrawlerDataDisruptor {
             try {
                 //todo upload data;
                 JSONObject data = JSON.parseObject(crawlerDataEvent.data);
+                System.out.println(data);
             } finally {
                 crawlerDataEvent.setData(null);
+                crawlerDataEvent.setDataType(null);
             }
         }
     }
@@ -56,7 +64,7 @@ public class CrawlerDataDisruptor {
 
     private CrawlerDataDisruptor() {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
-        int ringBufferSize = 2 ^ 14; // RingBuffer 大小，必须是 2 的 N 次方；
+        int ringBufferSize = (int) Math.pow(2, 17); // RingBuffer 大小，必须是 2 的 N 次方；
         disruptor = new Disruptor<>(eventFactory,
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI,
                 new YieldingWaitStrategy());
@@ -65,12 +73,13 @@ public class CrawlerDataDisruptor {
         disruptor.start();
     }
 
-    public void pushData(String jsonData) {
+    public void pushData(String dataType, String jsonData) {
         RingBuffer<CrawlerDataEvent> ringBuffer = disruptor.getRingBuffer();
         long sequence = ringBuffer.next();
         try {
             CrawlerDataEvent event = ringBuffer.get(sequence);
             event.setData(jsonData);
+            event.setDataType(dataType);
         } finally {
             ringBuffer.publish(sequence);
         }

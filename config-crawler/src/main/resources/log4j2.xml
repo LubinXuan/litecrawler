@@ -10,7 +10,8 @@
             <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%t] [%p] - %C[%M:%L] - %m%n"/>
         </console>
 
-        <RollingFile name="RollingFileInfo" fileName="${log.base}/info.log" filePattern="${log.base}/%d{yyyy-MM-dd}/info-%i.log">
+        <RollingFile name="RollingFileInfo" fileName="${log.base}/info.log"
+                     filePattern="${log.base}/%d{yyyy-MM-dd}/info-%i.log">
             <Filters>
                 <ThresholdFilter level="INFO"/>
                 <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
@@ -33,10 +34,11 @@
     <loggers>
 
         <logger name="org.springframework" level="warn"/>
+        <logger name="us.codecraft.webmagic.downloader" level="warn"/>
+        <logger name="org.apache.http" level="warn"/>
 
         <Root level="info">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFileInfo"/>
         </Root>
     </loggers>
 

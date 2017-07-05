@@ -5,7 +5,14 @@ package me.robin.crawler;
  */
 public interface Param {
 
+    interface Plat {
+        String wdzj = "网贷之家";
+        String p2peye = "网贷天眼";
+        String rong360 = "融360";
+    }
+
     String source = "source";
+    String dataType = "dataType";
 
     interface comment {
         String platname = "platname";

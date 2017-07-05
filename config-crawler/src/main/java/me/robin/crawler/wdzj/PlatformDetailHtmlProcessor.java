@@ -22,8 +22,10 @@ public class PlatformDetailHtmlProcessor extends BaseMatchPageProcessor {
 
     @Override
     public MatchOther processPage(Page page) {
-        String value = page.getHtml().selectDocument(new CssSelector("div.cen-zk","allText"));
-        page.getRequest().getExtras().put(Param.plat.instruction, value);
+        String value = page.getHtml().selectDocument(new CssSelector("div.cen-zk", "allText"));
+        page.putField(Param.plat.instruction, value);
+        page.getRequest().getExtras().forEach(page::putField);
+        page.putField(Param.dataType, Param.plat.class.getSimpleName());
         return MatchOther.NO;
     }
 }

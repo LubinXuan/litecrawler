@@ -1,4 +1,4 @@
-package me.robin.crawler;
+package me.robin.crawler.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

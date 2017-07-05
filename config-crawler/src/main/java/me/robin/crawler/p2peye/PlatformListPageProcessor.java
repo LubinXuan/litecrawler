@@ -1,6 +1,6 @@
 package me.robin.crawler.p2peye;
 
-import me.robin.crawler.BaseMatchPageProcessor;
+import me.robin.crawler.common.BaseMatchPageProcessor;
 import me.robin.crawler.Param;
 import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;

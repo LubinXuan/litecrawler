@@ -1,4 +1,4 @@
-package me.robin.crawler.util;
+package me.robin.crawler.common;
 
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.handler.SubPageProcessor;

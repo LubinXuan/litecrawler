@@ -11,6 +11,8 @@ public interface Param {
         String rong360 = "融360";
     }
 
+    String comment_id_limit = "comment_id_limit";
+
     String source = "source";
     String dataType = "dataType";
 

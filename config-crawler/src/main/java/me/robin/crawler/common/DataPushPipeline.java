@@ -1,6 +1,7 @@
-package me.robin.crawler;
+package me.robin.crawler.common;
 
 import com.alibaba.fastjson.JSON;
+import me.robin.crawler.Param;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,8 +15,8 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +28,8 @@ public class DataPushPipeline implements Pipeline {
     private static final Logger logger = LoggerFactory.getLogger(DataPushPipeline.class);
 
     private static final HttpClient client = HttpClients.createDefault();
+
+    public static final String DATA_LIST = "DATA_LIST";
 
     private HttpHost httpHost = new HttpHost("127.0.0.1", 8080);
 
@@ -43,9 +46,17 @@ public class DataPushPipeline implements Pipeline {
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        Map<String, Object> data = resultItems.getAll();
-        String dataType = (String) data.remove(Param.dataType);
-        this.push(dataType, data);
+        List<Map<String, Object>> dataList = resultItems.get(DATA_LIST);
+        if (null != dataList) {
+            for (Map<String, Object> data : dataList) {
+                String dataType = (String) data.remove(Param.dataType);
+                this.push(dataType, data);
+            }
+        } else {
+            Map<String, Object> data = resultItems.getAll();
+            String dataType = (String) data.remove(Param.dataType);
+            this.push(dataType, data);
+        }
     }
 
     //数据提交死循环至完成提交服务器

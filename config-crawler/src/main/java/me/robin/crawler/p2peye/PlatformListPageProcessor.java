@@ -8,9 +8,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by LubinXuan on 2017/6/3.
  */

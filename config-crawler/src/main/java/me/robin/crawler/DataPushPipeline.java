@@ -48,23 +48,24 @@ public class DataPushPipeline implements Pipeline {
         this.push(dataType, data);
     }
 
+    //数据提交死循环至完成提交服务器
     private void push(String dataType, Map<String, Object> data) {
         HttpPost post = new HttpPost("/push/data");
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));
         post.setHeader("data-type", dataType);
         post.setHeader("source-type", sourceType);
         HttpResponse response = null;
-        int maxTry = 10;
         Throwable throwable = null;
         int statusCode = 0;
-        while (maxTry > 0) {
+        int log = 0;
+        while (true) {
             try {
                 response = client.execute(httpHost, post);
                 if (response.getStatusLine().getStatusCode() == 200) {
                     return;
                 }
                 statusCode = response.getStatusLine().getStatusCode();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throwable = e;
             } finally {
                 if (null != response) {
@@ -72,17 +73,19 @@ public class DataPushPipeline implements Pipeline {
                 }
                 post.releaseConnection();
             }
-            maxTry--;
+            if (log++ % 5 == 0) {
+                if (null != throwable) {
+                    logger.warn("数据上传异常,Exception:{}", throwable.getMessage());
+                } else {
+                    logger.warn("数据上传返回码异常:{}", statusCode);
+                }
+            }
             try {
-                TimeUnit.SECONDS.sleep(10 - maxTry);
+                TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        if (null != throwable) {
-            logger.warn("数据上传异常,Exception:{}", throwable.getMessage());
-        } else {
-            logger.warn("数据上传返回码异常:{}", statusCode);
-        }
+
     }
 }

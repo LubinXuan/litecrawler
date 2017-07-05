@@ -12,6 +12,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,7 @@ public class CrawlerDataDisruptor {
 
     private CrawlerDataDisruptor() {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
-        int ringBufferSize = (int) Math.pow(2, 17); // RingBuffer 大小，必须是 2 的 N 次方；
+        int ringBufferSize = (int) Math.pow(2, 15); // RingBuffer 大小，必须是 2 的 N 次方；
         disruptor = new Disruptor<>(eventFactory,
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI,
                 new YieldingWaitStrategy());
@@ -145,8 +146,8 @@ public class CrawlerDataDisruptor {
             }
             builder.append(key).append("=").append(value);
         }
-        byte[] signData = cipher().doFinal(builder.toString().getBytes(Charset.forName("utf-8")));
-        crawlerDataEvent.data.put("sign", new String(signData, Charset.forName("utf-8")));
+        byte[] signData = cipher().doFinal(DigestUtils.sha1(builder.toString()));
+        crawlerDataEvent.data.put("sign", new String(Base64.getEncoder().encode(signData), Charset.forName("utf-8")));
     }
 
     public void pushData(String dataType, JSONObject jsonData) {
@@ -159,5 +160,9 @@ public class CrawlerDataDisruptor {
         } finally {
             ringBuffer.publish(sequence);
         }
+    }
+
+    public long remainingCapacity() {
+        return disruptor.getRingBuffer().remainingCapacity();
     }
 }

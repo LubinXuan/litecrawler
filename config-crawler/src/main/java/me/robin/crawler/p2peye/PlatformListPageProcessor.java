@@ -3,6 +3,7 @@ package me.robin.crawler.p2peye;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import me.robin.crawler.Param;
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -22,6 +23,11 @@ public class PlatformListPageProcessor extends BaseMatchPageProcessor {
         for (int i = 0; i < platforms.size(); i++) {
             JSONObject platform = platforms.getJSONObject(i);
             Request request = new Request("http://" + platform.getString("domain_body") + ".p2peye.com");
+            String platName = platform.getString("name");
+            request.putExtra(Param.plat.name,platName);
+            page.addTargetRequest(request);
+            request = new Request("http://" + platform.getString("domain_body") + ".p2peye.com/comment/");
+            request.putExtra(Param.comment.platname,platName);
             page.addTargetRequest(request);
         }
         page.getResultItems().setSkip(true);

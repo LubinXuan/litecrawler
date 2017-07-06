@@ -2,6 +2,7 @@ package me.robin.crawler.wdzj;
 
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import me.robin.crawler.Param;
+import me.robin.crawler.common.CralwData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
@@ -25,7 +26,7 @@ public class PlatformDetailHtmlProcessor extends BaseMatchPageProcessor {
         String value = page.getHtml().selectDocument(new CssSelector("div.cen-zk", "allText"));
         page.putField(Param.plat.instruction, value);
         page.getRequest().getExtras().forEach(page::putField);
-        page.putField(Param.dataType, Param.plat.class.getSimpleName());
+        CralwData.platData(page.getResultItems());
         return MatchOther.NO;
     }
 }

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class Application {
     public static void main(String[] args) throws JMException {
         Site site = Site.me();
-        site.setDomain(Param.PlatName.wdzj);
+        site.setDomain(Param.PlatName.WDZJ.getName());
         site.setSleepTime(4);
         site.setCycleRetryTimes(4);
         CompositePageProcessor pageProcessor = new CompositePageProcessor(site);
@@ -31,7 +31,7 @@ public class Application {
         pageProcessor.addSubPageProcessor(new CommentProcessor());
         Spider spider = BizSpider.create(pageProcessor)
                 .thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
-        spider.addPipeline(new DataPushPipeline("WDZJ"));
+        spider.addPipeline(new DataPushPipeline(Param.PlatName.WDZJ));
         spider.setSpiderListeners(new ArrayList<>());
         spider.getSpiderListeners().add(new RateDynamicListener(spider, 3, 10));
         spider.setExitWhenComplete(false);

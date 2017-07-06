@@ -20,7 +20,7 @@ public class PlatformDetailProcessor extends RegexProcessor {
         Request request = new Request(page.getRequest().getUrl() + "/shuju/?&type=seven_day");
         request.addHeader("Referer", page.getRequest().getUrl() + "/shuju/");
         request.addHeader("X-Requested-With", "XMLHttpRequest");
-        request.putExtra(Param.plat.name, page.getHtml().$("div.tit div.name", "text").get());
+        request.putExtra(Param.plat.name, page.getRequest().getExtra(Param.plat.name));
         request.putExtra(Param.plat.homelink, page.getHtml().$("a.pt_url", "data-href").get());
         request.putExtra(Param.plat.logo, page.getHtml().$("a.lo img", "src").get());
         String time = page.getHtml().$("div:containsOwn(上线时间)", "text").get();

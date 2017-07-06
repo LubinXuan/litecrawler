@@ -33,14 +33,14 @@ public class DataPushPipeline implements Pipeline {
 
     private HttpHost httpHost = new HttpHost("127.0.0.1", 8080);
 
-    private final String sourceType;
+    private final Param.PlatName platName;
 
-    public DataPushPipeline(String sourceType) {
-        this.sourceType = sourceType;
+    public DataPushPipeline(Param.PlatName platName) {
+        this.platName = platName;
     }
 
-    public DataPushPipeline(String sourceType, String host, int port) {
-        this(sourceType);
+    public DataPushPipeline(Param.PlatName platName, String host, int port) {
+        this(platName);
         this.httpHost = new HttpHost(host, port);
     }
 
@@ -61,10 +61,13 @@ public class DataPushPipeline implements Pipeline {
 
     //数据提交死循环至完成提交服务器
     private void push(String dataType, Map<String, Object> data) {
+        if (!data.containsKey(Param.source)) {
+            data.put(Param.source, platName.getName());
+        }
         HttpPost post = new HttpPost("/push/data");
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));
         post.setHeader("data-type", dataType);
-        post.setHeader("source-type", sourceType);
+        post.setHeader("source-type", platName.name());
         HttpResponse response = null;
         Throwable throwable = null;
         int statusCode = 0;

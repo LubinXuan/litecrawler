@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.util.TypeUtils;
 import me.robin.crawler.Param;
+import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.RegexProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 
 /**
@@ -12,19 +15,29 @@ import us.codecraft.webmagic.Page;
  */
 public class PlatformShujuProcessor extends RegexProcessor {
 
+    private static final Logger logger = LoggerFactory.getLogger(PlatformShujuProcessor.class);
+
     public PlatformShujuProcessor() {
         super("http://(.*?).p2peye.com/shuju/.*?");
     }
 
     @Override
     public MatchOther processPage(Page page) {
-        JSONObject data = (JSONObject) JSONPath.read(page.getRawText(), "data.data[0]");
-        page.putField(Param.plat.stage, JSONPath.eval(data, "loan_period.value"));
-        page.putField(Param.plat.totaldeal, JSONPath.eval(data, "amount.value"));
-        page.putField(Param.plat.totaluser, JSONPath.eval(data, "invest_num.value"));
-        page.putField(Param.plat.yield, TypeUtils.castToFloat(JSONPath.eval(data, "rate.value")) * 100);
-        page.putField(Param.dataType, Param.plat.class.getSimpleName());
-        page.getRequest().getExtras().forEach(page::putField);
+        try {
+            Object data = JSONPath.read(page.getRawText(), "data.data[0]");
+            if (data instanceof JSONObject) {
+                page.putField(Param.plat.stage, JSONPath.eval(data, "loan_period.value"));
+                page.putField(Param.plat.totaldeal, JSONPath.eval(data, "amount.value"));
+                page.putField(Param.plat.totaluser, JSONPath.eval(data, "invest_num.value"));
+                page.putField(Param.plat.yield, TypeUtils.castToFloat(JSONPath.eval(data, "rate.value")) * 100);
+            } else {
+                logger.info("没有获取到有效数据:{}", page.getRequest().getUrl());
+            }
+            CralwData.platData(page.getResultItems());
+            page.getRequest().getExtras().forEach(page::putField);
+        } catch (Exception e) {
+            logger.warn("数据处理异常:{}", page.getRequest().getUrl());
+        }
         return MatchOther.NO;
     }
 }

@@ -5,15 +5,24 @@ package me.robin.crawler;
  */
 public interface Param {
 
-    interface PlatName {
-        String wdzj = "网贷之家";
-        String p2peye = "网贷天眼";
-        String rong360 = "融360";
+    enum PlatName {
+        WDZJ("网贷之家"), P2PEYE("网贷天眼"), RONG360("融360");
+        private String name;
+
+        PlatName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
     String comment_crawled = "comment_crawled";
 
     String comment_id_limit = "comment_id_limit";
+
+    String comment_id_limit_save = "comment_id_limit_save";
 
     String source = "source";
     String dataType = "dataType";

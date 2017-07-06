@@ -1,6 +1,7 @@
 package me.robin.crawler.wdzj;
 
 import me.robin.crawler.Param;
+import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
@@ -23,15 +24,15 @@ import java.util.Map;
  */
 public class CommentProcessor extends RegexProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(CommentProcessor.url);
+    private static final Logger logger = LoggerFactory.getLogger(CommentProcessor.class);
 
     private static final String url = "http://www.wdzj.com/front/dianpingInfo/{pid}/20/{page}";
 
     private static final Map<String, String> PRAISE_ALIAS = new HashMap<>();
 
     static {
-        PRAISE_ALIAS.put("推荐", "好");
-        PRAISE_ALIAS.put("不推荐", "差");
+        PRAISE_ALIAS.put("推荐", "好评");
+        PRAISE_ALIAS.put("不推荐", "差评");
     }
 
     public static String commentUrl(String platId, int page) {
@@ -60,13 +61,11 @@ public class CommentProcessor extends RegexProcessor {
             String remarkTime = selectable.$("span.date", "text").get();
             String userName = selectable.$("span.name", "allText").get();
             String plat = (String) page.getRequest().getExtra(Param.comment.platname);
-            Map<String, Object> commentMap = new HashMap<>();
+            Map<String, Object> commentMap = CralwData.commentData();
             commentMap.put(Param.comment.platname, plat);
             commentMap.put(Param.comment.remark, remark);
             commentMap.put(Param.comment.remarktime, remarkTime + " 00:00:00");
             commentMap.put(Param.comment.username, userName);
-            commentMap.put(Param.source, Param.PlatName.wdzj);
-            commentMap.put(Param.dataType, Param.comment.class.getSimpleName());
             String praise = StringUtils.trim(selectable.$("span.tags", "text").get());
             if (StringUtils.isBlank(praise)) {
                 praise = "一般";

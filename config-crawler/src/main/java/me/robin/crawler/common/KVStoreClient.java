@@ -1,6 +1,7 @@
 package me.robin.crawler.common;
 
 import me.robin.crawler.Param;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -47,7 +48,8 @@ public class KVStoreClient {
 
         try {
             response = client.execute(httpHost, httpGet);
-            return EntityUtils.toString(response.getEntity());
+            String value = EntityUtils.toString(response.getEntity());
+            return StringUtils.isBlank(value) ? null : value;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

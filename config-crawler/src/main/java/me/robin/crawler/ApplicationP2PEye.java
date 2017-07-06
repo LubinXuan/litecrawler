@@ -5,6 +5,7 @@ import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.KVStoreClient;
 import me.robin.crawler.common.RateDynamicListener;
 import me.robin.crawler.p2peye.*;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.handler.CompositePageProcessor;
@@ -26,6 +27,12 @@ public class ApplicationP2PEye {
         Spider commonSpider = commonSpider(pipeline);
         Spider listSpider = listSpider(commonSpider, pipeline);
 
+        //listSpider.addUrl("http://www.p2peye.com/platform/all/");
+
+        Request request = new Request("http://licai.p2peye.com/loans");
+        request.setPriority(1);
+        commonSpider.addRequest(request);
+
         SpiderMonitor.instance().register(commonSpider);
         SpiderMonitor.instance().register(listSpider);
     }
@@ -40,7 +47,6 @@ public class ApplicationP2PEye {
         pageProcessor.addSubPageProcessor(new PlatformHtmlListPageProcessor(commonSpider));
         Spider spider = BizSpider.create(pageProcessor).thread(1);
         //.addUrl("http://lu.p2peye.com/index/getPlatform")
-        spider.addUrl("http://www.p2peye.com/platform/all/");
         spider.addPipeline(pipeline);
         spider.setSpiderListeners(new ArrayList<>());
         spider.getSpiderListeners().add(new RateDynamicListener(spider, 3, 10));
@@ -61,6 +67,9 @@ public class ApplicationP2PEye {
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());
         pageProcessor.addSubPageProcessor(new PlatformShujuProcessor());
         pageProcessor.addSubPageProcessor(new CommentProcessor());
+
+        ProductProcessors.addProcessor(pageProcessor);
+
         Spider spider = BizSpider.create(pageProcessor).thread(5);
         spider.addPipeline(pipeline);
         spider.setSpiderListeners(new ArrayList<>());

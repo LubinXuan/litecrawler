@@ -1,5 +1,6 @@
 package me.robin.crawler.wdzj;
 
+import com.alibaba.fastjson.util.TypeUtils;
 import me.robin.crawler.Param;
 import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
@@ -46,8 +47,9 @@ public class CommentProcessor extends RegexProcessor {
     @Override
     public MatchOther processPage(Page page) {
         HtmlNode htmlNode = (HtmlNode) page.getHtml().select(new CssSelector("ul.commentList div.bor"));
-        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.cursor_limit);
+        Integer commentLimit = TypeUtils.castToInt(page.getRequest().getExtra(Param.cursor_limit));
         Integer commentCrawled = (Integer) page.getRequest().getExtra(Param.comment_crawled);
+        Integer updateCursor = (Integer) page.getRequest().getExtra(Param.cursor_limit_save);
         if (null == commentCrawled) {
             commentCrawled = 0;
         }
@@ -57,10 +59,18 @@ public class CommentProcessor extends RegexProcessor {
             if (null != commentLimit && id <= commentLimit) {
                 break;
             }
+
+            String plat = (String) page.getRequest().getExtra(Param.comment.platname);
+            if (null == updateCursor || updateCursor < id) {
+                updateCursor = id;
+                page.putField(Param.cursor_limit_save, id);
+                page.putField(Param.cursor_limit_update, true);
+                page.putField(Param.cursor_limit_key, plat);
+            }
             String remark = selectable.$("div.commentFont p.font", "allText").get();
             String remarkTime = selectable.$("span.date", "text").get();
             String userName = selectable.$("span.name", "allText").get();
-            String plat = (String) page.getRequest().getExtra(Param.comment.platname);
+
             Map<String, Object> commentMap = CralwData.commentData();
             commentMap.put(Param.comment.platname, plat);
             commentMap.put(Param.comment.remark, remark);
@@ -83,6 +93,7 @@ public class CommentProcessor extends RegexProcessor {
             request.setMethod(HttpConstant.Method.POST);
             request.setExtras(page.getRequest().getExtras());
             request.putExtra(Param.comment_crawled, commentCrawled);
+            request.putExtra(Param.cursor_limit_save, updateCursor);
             request.addHeader("referer", page.getRequest().getHeaders().get("referer"));
             page.addTargetRequest(request);
         } else {

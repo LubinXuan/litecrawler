@@ -36,6 +36,7 @@ public class PlatformShujuProcessor extends RegexProcessor {
             CralwData.platData(page.getResultItems());
             page.getRequest().getExtras().forEach(page::putField);
         } catch (Exception e) {
+            page.getResultItems().setSkip(true);
             logger.warn("数据处理异常:{}", page.getRequest().getUrl());
         }
         return MatchOther.NO;

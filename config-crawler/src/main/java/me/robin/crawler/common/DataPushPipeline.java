@@ -67,6 +67,11 @@ public class DataPushPipeline implements Pipeline {
 
     //数据提交死循环至完成提交服务器
     private void push(String dataType, Map<String, Object> data) {
+
+        if (data.isEmpty()) {
+            return;
+        }
+
         if (!data.containsKey(Param.source)) {
             data.put(Param.source, platName.getName());
         }

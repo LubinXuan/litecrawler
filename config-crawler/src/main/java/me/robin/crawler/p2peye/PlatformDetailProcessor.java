@@ -1,6 +1,7 @@
 package me.robin.crawler.p2peye;
 
 import me.robin.crawler.Param;
+import me.robin.crawler.common.KVStoreClient;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
@@ -37,6 +38,7 @@ public class PlatformDetailProcessor extends RegexProcessor {
         if (!StringUtils.equals(count, "口碑")) {
             request = new Request(page.getRequest().getUrl() + "/comment/");
             request.putExtra(Param.comment.platname, page.getRequest().getExtra(Param.plat.name));
+            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.P2PEYE.name() + "-" + page.getRequest().getExtra(Param.plat.name)));
             request.setPriority(1);
             page.addTargetRequest(request);
         }

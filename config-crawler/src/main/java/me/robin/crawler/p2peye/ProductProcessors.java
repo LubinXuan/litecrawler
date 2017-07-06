@@ -1,0 +1,82 @@
+package me.robin.crawler.p2peye;
+
+import me.robin.crawler.common.BaseMatchPageProcessor;
+import me.robin.crawler.common.RegexProcessor;
+import org.apache.commons.lang3.StringUtils;
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.handler.CompositePageProcessor;
+import us.codecraft.webmagic.selector.HtmlNode;
+import us.codecraft.webmagic.selector.Selectable;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+/**
+ * Created by Lubin.Xuan on 2017-07-06.
+ * {desc}
+ */
+public class ProductProcessors {
+    public static void addProcessor(CompositePageProcessor compositePageProcessor) {
+        compositePageProcessor.addSubPageProcessor(new ProductDetailProcessor());
+        compositePageProcessor.addSubPageProcessor(new ProductListProcessor());
+    }
+
+    /**
+     * Created by Lubin.Xuan on 2017-07-06.
+     * {desc}
+     */
+    public static class ProductDetailProcessor extends RegexProcessor {
+
+        private static final ThreadLocal<NumberFormat> nf = ThreadLocal.withInitial(() -> new DecimalFormat("#0.##"));
+
+        public ProductDetailProcessor() {
+            super("http://licai.p2peye.com/loans/details-(\\d+?).html");
+        }
+
+        @Override
+        public MatchOther processPage(Page page) {
+            String platName = page.getHtml().$("div.sub div.hd a", "title").get();
+            String productName = page.getHtml().$("div.bigbox div.hd h3", "title").get();
+            String repaymentType = page.getHtml().$("tr:contains(还款方式) td.bcell", "allText").all().get(1);
+            String assetsType = page.getHtml().$("tr:contains(项目类型) td.bcell", "allText").all().get(1);
+            String yield = StringUtils.replace(page.getHtml().$("div.des-le", "allText").get(), "%", "");
+            String stage = StringUtils.replace(page.getHtml().$("div.dt2 div.bot", "allText").get(), "%", "");
+            if (StringUtils.contains(stage, "个月")) {
+                stage = StringUtils.remove(stage, "个月");
+            } else if (StringUtils.contains(stage, "天")) {
+                stage = StringUtils.remove(stage, "天");
+                stage = nf.get().format(Integer.parseInt(stage) / (float) 30);
+            }
+            System.out.println(platName + " " + productName + " " + stage);
+            return MatchOther.NO;
+        }
+    }
+
+    /**
+     * Created by Lubin.Xuan on 2017-07-06.
+     * {desc}
+     */
+    public static class ProductListProcessor extends BaseMatchPageProcessor {
+        public ProductListProcessor() {
+            super("http://licai.p2peye.com/loans");
+        }
+
+        @Override
+        public MatchOther processPage(Page page) {
+            HtmlNode products = (HtmlNode) page.getHtml().$("a.ibds-a");
+            for (Selectable product : products.nodes()) {
+                Request request = new Request(product.$("a", "href").get());
+                request.setPriority(1);
+                page.addTargetRequest(request);
+            }
+            String nextUrl = page.getHtml().$("a[title=下一页]", "abs:href").get();
+            if (StringUtils.isNotBlank(nextUrl)) {
+                Request request = new Request(nextUrl);
+                request.setPriority(1);
+                page.addTargetRequest(request);
+            }
+            return MatchOther.NO;
+        }
+    }
+}

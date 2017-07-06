@@ -1,5 +1,6 @@
 package me.robin.crawler.p2peye;
 
+import com.alibaba.fastjson.util.TypeUtils;
 import me.robin.crawler.Param;
 import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
@@ -33,7 +34,7 @@ public class CommentProcessor extends RegexProcessor {
     public MatchOther processPage(Page page) {
         HtmlNode comments = (HtmlNode) page.getHtml().$("li[id^=comment_item_]");
 
-        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.cursor_limit);
+        Integer commentLimit = TypeUtils.castToInt(page.getRequest().getExtra(Param.cursor_limit));
         Integer commentCrawled = (Integer) page.getRequest().getExtra(Param.comment_crawled);
         Integer updateCursor = (Integer) page.getRequest().getExtra(Param.cursor_limit_save);
         if (null == commentCrawled) {

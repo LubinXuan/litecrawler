@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Created by LubinXuan on 2017/7/5.
  */
 @SpringBootApplication
-@ServletComponentScan("me.robin.crawler.push")
+@ServletComponentScan(basePackageClasses = CursorServlet.class)
 @EnableScheduling
 public class PushApplication {
 

@@ -45,6 +45,7 @@ public class PlatformDetailProcessor extends BaseMatchPageProcessor {
             Request request = new Request(PlatformDetailHtmlProcessor.url + platOuterVo.getString("platNamePin") + "/");
             request.setExtras(page.getRequest().getExtras());
             request.addHeader("referer", page.getRequest().getHeaders().get("referer"));
+            request.setPriority(1);
             page.addTargetRequest(request);
         } else {
             logger.warn("网贷之家详情数据获取异常:{} {}", page.getRequest().getUrl(), data.getString("message"));

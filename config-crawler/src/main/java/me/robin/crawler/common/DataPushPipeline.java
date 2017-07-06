@@ -48,6 +48,12 @@ public class DataPushPipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<Map<String, Object>> dataList = resultItems.get(DATA_LIST);
         if (null != dataList) {
+            Boolean update = resultItems.get(Param.cursor_limit_update);
+            if (Boolean.TRUE.equals(update)) {
+                Object value = resultItems.get(Param.cursor_limit_save);
+                String key = resultItems.get(Param.cursor_limit_key);
+                KVStoreClient.set(platName.name() + "-" + key, value);
+            }
             for (Map<String, Object> data : dataList) {
                 String dataType = (String) data.remove(Param.dataType);
                 this.push(dataType, data);

@@ -20,9 +20,13 @@ public interface Param {
 
     String comment_crawled = "comment_crawled";
 
-    String comment_id_limit = "comment_id_limit";
+    String cursor_limit = "cursor_limit";
 
-    String comment_id_limit_save = "comment_id_limit_save";
+    String cursor_limit_save = "cursor_limit_save";
+
+    String cursor_limit_key = "cursor_limit_key";
+
+    String cursor_limit_update = "cursor_limit_update";
 
     String source = "source";
     String dataType = "dataType";

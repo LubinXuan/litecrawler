@@ -46,7 +46,7 @@ public class CommentProcessor extends RegexProcessor {
     @Override
     public MatchOther processPage(Page page) {
         HtmlNode htmlNode = (HtmlNode) page.getHtml().select(new CssSelector("ul.commentList div.bor"));
-        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.comment_id_limit);
+        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.cursor_limit);
         Integer commentCrawled = (Integer) page.getRequest().getExtra(Param.comment_crawled);
         if (null == commentCrawled) {
             commentCrawled = 0;

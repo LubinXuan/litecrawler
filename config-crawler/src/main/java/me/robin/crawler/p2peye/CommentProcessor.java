@@ -14,7 +14,6 @@ import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +33,9 @@ public class CommentProcessor extends RegexProcessor {
     public MatchOther processPage(Page page) {
         HtmlNode comments = (HtmlNode) page.getHtml().$("li[id^=comment_item_]");
 
-        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.comment_id_limit);
+        Integer commentLimit = (Integer) page.getRequest().getExtra(Param.cursor_limit);
         Integer commentCrawled = (Integer) page.getRequest().getExtra(Param.comment_crawled);
+        Integer updateCursor = (Integer) page.getRequest().getExtra(Param.cursor_limit_save);
         if (null == commentCrawled) {
             commentCrawled = 0;
         }
@@ -46,6 +46,14 @@ public class CommentProcessor extends RegexProcessor {
             if (null != commentLimit && id <= commentLimit) {
                 break;
             }
+
+            if (null == updateCursor || updateCursor < id) {
+                updateCursor = id;
+                page.putField(Param.cursor_limit_save, id);
+                page.putField(Param.cursor_limit_update, true);
+                page.putField(Param.cursor_limit_key, page.getRequest().getExtra(Param.comment.platname));
+            }
+
             Map<String, Object> data = CralwData.commentData();
             data.put(Param.comment.platname, page.getRequest().getExtra(Param.comment.platname));
             data.put(Param.comment.remark, comment.$("div.comment", "allText").get());
@@ -64,6 +72,7 @@ public class CommentProcessor extends RegexProcessor {
             request.setMethod(HttpConstant.Method.GET);
             request.setExtras(page.getRequest().getExtras());
             request.putExtra(Param.comment_crawled, commentCrawled);
+            request.putExtra(Param.cursor_limit_save, updateCursor);
             page.addTargetRequest(request);
         } else {
             logger.info("评论爬取完成,共爬取评论数;{}   <-{}", commentCrawled, page.getRequest().getUrl());

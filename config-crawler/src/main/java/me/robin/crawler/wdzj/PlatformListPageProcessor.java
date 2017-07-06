@@ -59,6 +59,7 @@ public class PlatformListPageProcessor extends RegexProcessor {
             request.putExtra(Param.plat.yield, plat.getFloatValue("platEarnings"));
             //int platStatus = plat.getIntValue("platStatus");
             request.addHeader("referer", page.getRequest().getUrl());
+            request.setPriority(1);
             page.addTargetRequest(request);
             //if (1 == platStatus || platStatus == 3) {
             request = new Request(CommentProcessor.commentUrl(platId, 1));

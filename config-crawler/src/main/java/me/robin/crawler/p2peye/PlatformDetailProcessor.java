@@ -5,6 +5,7 @@ import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Spider;
 
 /**
  * Created by LubinXuan on 2017/6/3.
@@ -31,6 +32,14 @@ public class PlatformDetailProcessor extends RegexProcessor {
         request.setPriority(1);
         page.addTargetRequest(request);
         page.getResultItems().setSkip(true);
+
+        String count = page.getHtml().$("a[title=口碑]", "text").get();
+        if (!StringUtils.equals(count, "口碑")) {
+            request = new Request(page.getRequest().getUrl() + "/comment/");
+            request.putExtra(Param.comment.platname, page.getRequest().getExtra(Param.plat.name));
+            request.setPriority(1);
+            page.addTargetRequest(request);
+        }
         return MatchOther.NO;
     }
 }

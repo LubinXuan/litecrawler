@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by LubinXuan on 2017/6/3.
  */
-public class Application {
+public class Application extends BaseApplication {
     public static void main(String[] args) throws JMException {
         Site site = Site.me();
         site.setDomain(Param.PlatName.WDZJ.getName());

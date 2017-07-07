@@ -31,7 +31,7 @@ public class DataPushPipeline implements Pipeline {
 
     public static final String DATA_LIST = "DATA_LIST";
 
-    private HttpHost httpHost = new HttpHost("127.0.0.1", 8080);
+    private static HttpHost httpHost = new HttpHost("127.0.0.1", 8080);
 
     private final Param.PlatName platName;
 
@@ -39,9 +39,8 @@ public class DataPushPipeline implements Pipeline {
         this.platName = platName;
     }
 
-    public DataPushPipeline(Param.PlatName platName, String host, int port) {
-        this(platName);
-        this.httpHost = new HttpHost(host, port);
+    public static void host(String host, int port) {
+        DataPushPipeline.httpHost = new HttpHost(host, port);
     }
 
     @Override

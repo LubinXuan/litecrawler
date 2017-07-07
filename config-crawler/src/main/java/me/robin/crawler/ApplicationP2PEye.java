@@ -19,11 +19,9 @@ import java.util.ArrayList;
 /**
  * Created by LubinXuan on 2017/6/3.
  */
-public class ApplicationP2PEye {
+public class ApplicationP2PEye extends BaseApplication {
     public static void main(String[] args) throws JMException {
-        KVStoreClient.host("127.0.0.1", 8080);
         Pipeline pipeline = new DataPushPipeline(Param.PlatName.P2PEYE);
-
         Spider commonSpider = commonSpider(pipeline);
         Spider listSpider = listSpider(commonSpider, pipeline);
 

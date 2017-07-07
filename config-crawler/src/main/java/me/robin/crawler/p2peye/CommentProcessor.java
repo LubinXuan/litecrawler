@@ -41,6 +41,8 @@ public class CommentProcessor extends RegexProcessor {
             commentCrawled = 0;
         }
 
+        String platId = page.getHtml().$("a[data-platId]","data-platId").get();
+
         List<Map<String, Object>> commentList = new ArrayList<>();
         for (Selectable comment : comments.nodes()) {
             int id = Integer.parseInt(StringUtils.replace(comment.$("li", "id").get(), "comment_item_", ""));
@@ -61,6 +63,7 @@ public class CommentProcessor extends RegexProcessor {
             data.put(Param.comment.remarktime, comment.$("div.time", "allText").get());
             data.put(Param.comment.username, comment.$("a.username", "allText").get());
             data.put(Param.comment.praise, comment.$("div.commentcore", "allText").get());
+            data.put(Param.dataUid, platId + "-" + id);
             commentList.add(data);
             commentCrawled++;
         }//下一页

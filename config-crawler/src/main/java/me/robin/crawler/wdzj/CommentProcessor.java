@@ -53,6 +53,7 @@ public class CommentProcessor extends RegexProcessor {
         if (null == commentCrawled) {
             commentCrawled = 0;
         }
+        String platId = StringUtils.substringBetween(page.getRequest().getUrl(), "dianpingInfo/", "/20/");
         List<Map<String, Object>> commentList = new ArrayList<>();
         for (Selectable selectable : htmlNode.nodes()) {
             int id = Integer.parseInt(StringUtils.replace(selectable.$("span[id^=useful_]", "id").get(), "useful_", ""));
@@ -76,6 +77,7 @@ public class CommentProcessor extends RegexProcessor {
             commentMap.put(Param.comment.remark, remark);
             commentMap.put(Param.comment.remarktime, remarkTime + " 00:00:00");
             commentMap.put(Param.comment.username, userName);
+            commentMap.put(Param.dataUid, platId + "-" + id);
             String praise = StringUtils.trim(selectable.$("span.tags", "text").get());
             if (StringUtils.isBlank(praise)) {
                 praise = "一般";

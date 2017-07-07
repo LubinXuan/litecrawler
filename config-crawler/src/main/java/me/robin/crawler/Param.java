@@ -30,6 +30,8 @@ public interface Param {
 
     String source = "source";
     String dataType = "dataType";
+    //数据唯一性标识字段
+    String dataUid = "uid";
 
     interface comment {
         String platname = "platname";

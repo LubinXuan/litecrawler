@@ -30,6 +30,9 @@ public class PlatformDetailProcessor extends RegexProcessor {
         time = StringUtils.replaceEach(StringUtils.substringAfter(time, "："), new String[]{"年", "月", "日"}, new String[]{"-", "-", ""});
         request.putExtra(Param.plat.onlinetime, time + " 00:00:00");
         request.putExtra(Param.plat.instruction, page.getHtml().$("#pingtaijianjie", "allText").get());
+
+        String platId = page.getHtml().$("#template-plat-id","value").get();
+        request.putExtra(Param.dataUid, platId);
         request.setPriority(1);
         page.addTargetRequest(request);
         page.getResultItems().setSkip(true);

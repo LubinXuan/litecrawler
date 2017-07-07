@@ -27,7 +27,7 @@ public class ApplicationP2PEye {
         Spider commonSpider = commonSpider(pipeline);
         Spider listSpider = listSpider(commonSpider, pipeline);
 
-        //listSpider.addUrl("http://www.p2peye.com/platform/all/");
+        listSpider.addUrl("http://www.p2peye.com/platform/all/");
 
         Request request = new Request("http://licai.p2peye.com/loans");
         request.setPriority(1);

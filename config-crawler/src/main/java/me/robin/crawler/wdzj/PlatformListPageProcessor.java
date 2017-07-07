@@ -57,6 +57,7 @@ public class PlatformListPageProcessor extends RegexProcessor {
             request.putExtra(Param.plat.rank, plat.getIntValue("zonghezhishuRank"));
             request.putExtra(Param.plat.score, plat.getFloatValue("zonghezhishu"));
             request.putExtra(Param.plat.yield, plat.getFloatValue("platEarnings"));
+            request.putExtra(Param.dataUid, platId);
             //int platStatus = plat.getIntValue("platStatus");
             request.addHeader("referer", page.getRequest().getUrl());
             request.setPriority(1);

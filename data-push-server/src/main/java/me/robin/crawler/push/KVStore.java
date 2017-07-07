@@ -2,6 +2,7 @@ package me.robin.crawler.push;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +27,11 @@ public class KVStore implements DisposableBean {
     @Value("${kv_store.fileName}")
     private File storeFile;
 
-    private Map<String, String> data = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> data;
 
     @PostConstruct
     private void init() throws IOException {
-        if (storeFile.exists()) {
-            List<String> lines = FileUtils.readLines(storeFile, Charset.forName("utf-8"));
-            for (String line : lines) {
-                String[] kv = StringUtils.split(line, ":");
-                data.put(kv[0], kv[1]);
-            }
-        }
+        data = SerializationUtil.fromFile(storeFile, ConcurrentHashMap::new);
     }
 
     public void set(String key, String value) {
@@ -52,17 +47,6 @@ public class KVStore implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        FileOutputStream fileOutputStream = FileUtils.openOutputStream(storeFile);
-        BufferedOutputStream bos = IOUtils.buffer(fileOutputStream);
-        int lines = 0;
-        for (Map.Entry<String, String> entry : data.entrySet()) {
-            String line = entry.getKey() + ":" + entry.getValue();
-            bos.write(line.getBytes(Charset.forName("utf-8")));
-            if (lines++ > 10000) {
-                bos.flush();
-            }
-        }
-        bos.close();
-        IOUtils.closeQuietly(fileOutputStream);
+        SerializationUtil.save(storeFile, data);
     }
 }

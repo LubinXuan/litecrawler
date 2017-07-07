@@ -2,10 +2,7 @@ package me.robin.crawler.push;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import okhttp3.MediaType;
@@ -13,6 +10,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +33,8 @@ import java.util.concurrent.Executors;
  */
 @Component
 public class CrawlerDataDisruptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(CrawlerDataDisruptor.class);
 
     private static final ThreadLocal<Cipher> CIPHER_LOCAL = new ThreadLocal<>();
 
@@ -58,6 +59,22 @@ public class CrawlerDataDisruptor {
                 new YieldingWaitStrategy());
         EventHandler eventHandler = new CrawlerDataEventHandler();
         disruptor.handleEventsWith(eventHandler);
+        disruptor.setDefaultExceptionHandler(new ExceptionHandler<CrawlerDataEvent>() {
+            @Override
+            public void handleEventException(Throwable throwable, long l, CrawlerDataEvent event) {
+                logger.warn("处理数据 {} {} 异常", event.dataType, event.data, throwable);
+            }
+
+            @Override
+            public void handleOnStartException(Throwable throwable) {
+                logger.warn("启动disruptor异常 {}", throwable.toString());
+            }
+
+            @Override
+            public void handleOnShutdownException(Throwable throwable) {
+                logger.warn("停止disruptor异常 {}", throwable.toString());
+            }
+        });
     }
 
     @PostConstruct
@@ -121,7 +138,7 @@ public class CrawlerDataDisruptor {
 
                 String api = "/financial-web/api/v1/spider/" + crawlerDataEvent.dataType + "/add";
                 //todo upload data;
-                System.out.println(crawlerDataEvent.data.toJSONString());
+                logger.info(crawlerDataEvent.data.toJSONString());
                 if (!crawlerDataEvent.data.containsKey("sign")) {
                     signParam(crawlerDataEvent);
                 }

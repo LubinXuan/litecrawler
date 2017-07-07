@@ -98,6 +98,9 @@
     </dependencyManagement>
 
     <build>
+
+        <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <!-- 设置源文件编码方式 -->
             <plugin>

@@ -33,9 +33,9 @@ public class ApplicationP2PEye extends BaseApplication {
 
         listSpider.addUrl("http://www.p2peye.com/platform/all/");
 
-        //Request request = new Request("http://licai.p2peye.com/loans");
-        //request.setPriority(1);
-        //commonSpider.addRequest(request);
+        Request request = new Request("http://licai.p2peye.com/loans");
+        request.setPriority(1);
+        commonSpider.addRequest(request);
         SpiderMonitor.instance().register(commonSpider);
         SpiderMonitor.instance().register(listSpider);
     }

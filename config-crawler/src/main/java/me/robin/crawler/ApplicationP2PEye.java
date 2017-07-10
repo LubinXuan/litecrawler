@@ -48,8 +48,7 @@ public class ApplicationP2PEye extends BaseApplication {
         Spider spider = BizSpider.create(pageProcessor).thread(1);
         //.addUrl("http://lu.p2peye.com/index/getPlatform")
         spider.addPipeline(pipeline);
-        spider.setSpiderListeners(new ArrayList<>());
-        spider.getSpiderListeners().add(new RateDynamicListener(spider, 5, 10));
+        dynamicListener(spider);
         spider.setExitWhenComplete(false);
 
         CookieUpdater cookieUpdater = new CookieUpdater(chromeBin);
@@ -79,8 +78,7 @@ public class ApplicationP2PEye extends BaseApplication {
 
         Spider spider = BizSpider.create(pageProcessor).thread(5);
         spider.addPipeline(pipeline);
-        spider.setSpiderListeners(new ArrayList<>());
-        spider.getSpiderListeners().add(new RateDynamicListener(spider, 2, 10));
+        dynamicListener(spider);
         spider.setExitWhenComplete(false);
         CookieUpdater cookieUpdater = new CookieUpdater(chromeBin);
 

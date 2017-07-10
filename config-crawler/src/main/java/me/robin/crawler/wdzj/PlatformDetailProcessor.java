@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import me.robin.crawler.Param;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
@@ -41,6 +42,16 @@ public class PlatformDetailProcessor extends BaseMatchPageProcessor {
             page.getRequest().putExtra(Param.plat.totaldeal, platShujuMap.getFloatValue("amount"));
             page.getRequest().putExtra(Param.plat.stage, platShujuMap.getFloatValue("loan_period"));
 
+            String locationAreaName = platOuterVo.getString("locationAreaName");
+            String locationCityName = platOuterVo.getString("locationCityName");
+
+            if (StringUtils.isNotBlank(locationAreaName) && StringUtils.isNotBlank(locationCityName)) {
+                page.getRequest().putExtra(Param.plat.location, locationAreaName + locationCityName);
+            } else if (StringUtils.isNotBlank(locationAreaName) && StringUtils.isBlank(locationCityName)) {
+                page.getRequest().putExtra(Param.plat.location, locationAreaName);
+            } else if (StringUtils.isBlank(locationAreaName) && StringUtils.isNotBlank(locationCityName)) {
+                page.getRequest().putExtra(Param.plat.location, locationCityName);
+            }
 
             Request request = new Request(PlatformDetailHtmlProcessor.url + platOuterVo.getString("platNamePin") + "/");
             request.setExtras(page.getRequest().getExtras());

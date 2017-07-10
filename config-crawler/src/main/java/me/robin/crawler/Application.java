@@ -27,8 +27,7 @@ public class Application extends BaseApplication {
         Spider spider = BizSpider.create(pageProcessor)
                 .thread(5).addUrl("http://www.wdzj.com/front_select-plat?sort=0&currPage=1");
         spider.addPipeline(new DataPushPipeline(Param.PlatName.WDZJ));
-        spider.setSpiderListeners(new ArrayList<>());
-        spider.getSpiderListeners().add(new RateDynamicListener(spider, 2, 10));
+        dynamicListener(spider);
         spider.setExitWhenComplete(false);
         SpiderMonitor.instance().register(spider);
         spider.start();

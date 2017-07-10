@@ -40,6 +40,8 @@ public interface Param {
         String remarktime = "remarktime";
         String username = "username";
         String praise = "praise";
+        String headimg = "headimg";
+        String useful = "useful";
     }
 
     interface plat {

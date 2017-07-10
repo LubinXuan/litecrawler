@@ -20,10 +20,7 @@ import java.util.ArrayList;
  */
 public class Application extends BaseApplication {
     public static void main(String[] args) throws JMException {
-        Site site = Site.me();
-        site.setDomain(Param.PlatName.WDZJ.getName());
-        site.setSleepTime(4);
-        site.setCycleRetryTimes(4);
+        Site site = site(Param.PlatName.WDZJ.getName());
         CompositePageProcessor pageProcessor = new CompositePageProcessor(site);
         pageProcessor.addSubPageProcessor(new PlatformListPageProcessor());
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());

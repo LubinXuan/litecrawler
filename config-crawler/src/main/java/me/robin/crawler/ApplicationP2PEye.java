@@ -37,10 +37,7 @@ public class ApplicationP2PEye extends BaseApplication {
 
 
     private static Spider listSpider(Spider commonSpider, Pipeline pipeline) {
-        Site site = Site.me();
-        site.setDomain(Param.PlatName.P2PEYE.getName() + "-list");
-        site.setSleepTime(4).setCharset("gbk");
-        site.setCycleRetryTimes(4);
+        Site site = site(Param.PlatName.P2PEYE.getName() + "-list").setCharset("gbk");
         CompositePageProcessor pageProcessor = new CompositePageProcessor(site);
         pageProcessor.addSubPageProcessor(new PlatformHtmlListPageProcessor(commonSpider));
         Spider spider = BizSpider.create(pageProcessor).thread(1);
@@ -56,10 +53,7 @@ public class ApplicationP2PEye extends BaseApplication {
     }
 
     public static Spider commonSpider(Pipeline pipeline) {
-        Site site = Site.me();
-        site.setDomain(Param.PlatName.P2PEYE.getName() + "-common");
-        site.setSleepTime(4).setCharset("UTF-8");
-        site.setCycleRetryTimes(4);
+        Site site = site(Param.PlatName.P2PEYE.getName() + "-common").setCharset("utf-8");
         CompositePageProcessor pageProcessor = new CompositePageProcessor(site);
         pageProcessor.addSubPageProcessor(new PlatformListPageProcessor());
         pageProcessor.addSubPageProcessor(new PlatformDetailProcessor());

@@ -63,6 +63,8 @@ public class CommentProcessor extends RegexProcessor {
             data.put(Param.comment.remarktime, comment.$("div.time", "allText").get());
             data.put(Param.comment.username, comment.$("a.username", "allText").get());
             data.put(Param.comment.praise, comment.$("div.commentcore", "allText").get());
+            data.put(Param.comment.headimg,comment.$("div.actor","src").get());
+            data.put(Param.comment.useful,comment.$("a.praise","allText").get());
             data.put(Param.dataUid, platId + "-" + id);
             commentList.add(data);
             commentCrawled++;

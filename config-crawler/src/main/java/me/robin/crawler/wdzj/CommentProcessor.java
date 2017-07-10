@@ -55,8 +55,8 @@ public class CommentProcessor extends RegexProcessor {
         }
         String platId = StringUtils.substringBetween(page.getRequest().getUrl(), "dianpingInfo/", "/20/");
         List<Map<String, Object>> commentList = new ArrayList<>();
-        for (Selectable selectable : htmlNode.nodes()) {
-            int id = Integer.parseInt(StringUtils.replace(selectable.$("span[id^=useful_]", "id").get(), "useful_", ""));
+        for (Selectable comment : htmlNode.nodes()) {
+            int id = Integer.parseInt(StringUtils.replace(comment.$("span[id^=useful_]", "id").get(), "useful_", ""));
             if (null != commentLimit && id <= commentLimit) {
                 break;
             }
@@ -68,17 +68,19 @@ public class CommentProcessor extends RegexProcessor {
                 page.putField(Param.cursor_limit_update, true);
                 page.putField(Param.cursor_limit_key, plat);
             }
-            String remark = selectable.$("div.commentFont p.font", "allText").get();
-            String remarkTime = selectable.$("span.date", "text").get();
-            String userName = selectable.$("span.name", "allText").get();
+            String remark = comment.$("div.commentFont p.font", "allText").get();
+            String remarkTime = comment.$("span.date", "text").get();
+            String userName = comment.$("span.name", "allText").get();
 
             Map<String, Object> commentMap = CralwData.commentData();
             commentMap.put(Param.comment.platname, plat);
             commentMap.put(Param.comment.remark, remark);
             commentMap.put(Param.comment.remarktime, remarkTime + " 00:00:00");
             commentMap.put(Param.comment.username, userName);
+            commentMap.put(Param.comment.headimg, comment.$("div.avatar img","src").get());
+            commentMap.put(Param.comment.useful,comment.$("#useful_"+id,"text").get());
             commentMap.put(Param.dataUid, platId + "-" + id);
-            String praise = StringUtils.trim(selectable.$("span.tags", "text").get());
+            String praise = StringUtils.trim(comment.$("span.tags", "text").get());
             if (StringUtils.isBlank(praise)) {
                 praise = "一般";
             }

@@ -7,6 +7,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -158,8 +159,9 @@ public class CrawlerDataDisruptor {
                 Response response = null;
                 try {
                     response = client.newCall(request).execute();
-                    if (response.code() != 200) {
-                        logger.warn("数据提交服务器响应异常:{}", response.code());
+                    String rsp = null != response.body() ? response.body().string() : "";
+                    if (response.code() != 200 || StringUtils.contains(rsp, "验签失败")) {
+                        logger.warn("数据提交服务器响应异常:{}   rsp:{}", response.code(), rsp);
                         pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
                     }
                 } catch (IOException e) {

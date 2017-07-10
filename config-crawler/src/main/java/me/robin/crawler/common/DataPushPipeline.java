@@ -15,9 +15,9 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,8 +35,29 @@ public class DataPushPipeline implements Pipeline {
 
     private final Param.PlatName platName;
 
+    private final Map<String, Set<String>> fieldMap = new HashMap<>();
+
     public DataPushPipeline(Param.PlatName platName) {
         this.platName = platName;
+        initField(Param.plat.class);
+        initField(Param.comment.class);
+        initField(Param.product.class);
+    }
+
+    private void initField(Class clazz) {
+        Field[] fields = clazz.getDeclaredFields();
+        Set<String> allFields = new HashSet<>();
+        for (Field field : fields) {
+            try {
+                String value = (String) field.get(null);
+                allFields.add(value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!allFields.isEmpty()) {
+            fieldMap.put(clazz.getSimpleName(), allFields);
+        }
     }
 
     public static void host(String host, int port) {
@@ -69,6 +90,13 @@ public class DataPushPipeline implements Pipeline {
 
         if (data.isEmpty()) {
             return;
+        }
+
+        Set<String> allFields = fieldMap.get(dataType);
+        for (String field : allFields) {
+            if (!data.containsKey(field)) {
+                data.put(field, "");
+            }
         }
 
         if (!data.containsKey(Param.source)) {

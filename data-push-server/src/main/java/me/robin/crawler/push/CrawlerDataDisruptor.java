@@ -148,7 +148,6 @@ public class CrawlerDataDisruptor {
 
                 String api = "/financial-web/api/v1/spider/" + crawlerDataEvent.dataType + "/add";
                 //todo upload data;
-                logger.info(crawlerDataEvent.data.toJSONString());
                 if (!crawlerDataEvent.data.containsKey("sign")) {
                     signParam(crawlerDataEvent);
                 }
@@ -161,7 +160,7 @@ public class CrawlerDataDisruptor {
                     response = client.newCall(request).execute();
                     String rsp = null != response.body() ? response.body().string() : "";
                     if (response.code() != 200 || StringUtils.contains(rsp, "验签失败")) {
-                        logger.warn("数据提交服务器响应异常:{}   rsp:{}", response.code(), rsp);
+                        logger.warn("数据提交服务器响应异常:{}  data:{}  rsp:{}", response.code(), crawlerDataEvent.data.toJSONString(), rsp);
                         pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
                     }
                 } catch (IOException e) {

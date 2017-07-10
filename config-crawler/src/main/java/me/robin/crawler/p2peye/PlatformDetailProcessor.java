@@ -30,10 +30,11 @@ public class PlatformDetailProcessor extends RegexProcessor {
         time = StringUtils.replaceEach(StringUtils.substringAfter(time, "："), new String[]{"年", "月", "日"}, new String[]{"-", "-", ""});
         request.putExtra(Param.plat.onlinetime, time + " 00:00:00");
         request.putExtra(Param.plat.instruction, page.getHtml().$("#pingtaijianjie", "allText").get());
-        request.putExtra(Param.plat.assetstype, page.getHtml().$("tr:contains(项目类型) td span", "allText").get());
+        String assetsType = page.getHtml().$("tr:contains(项目类型) td span", "allText").get();
+        request.putExtra(Param.plat.assetstype, StringUtils.replace(assetsType, " | ", "|"));
         request.putExtra(Param.plat.location, page.getHtml().$("a.address", "allText").get());
 
-        String platId = page.getHtml().$("#template-plat-id","value").get();
+        String platId = page.getHtml().$("#template-plat-id", "value").get();
         request.putExtra(Param.dataUid, platId);
         request.setPriority(1);
         page.addTargetRequest(request);

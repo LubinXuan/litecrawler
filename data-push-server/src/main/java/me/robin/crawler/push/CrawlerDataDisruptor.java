@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 
 /**
@@ -178,7 +179,7 @@ public class CrawlerDataDisruptor {
 
     private void signParam(CrawlerDataEvent crawlerDataEvent) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         StringBuilder builder = new StringBuilder();
-        for (String key : crawlerDataEvent.data.keySet()) {
+        for (String key : new TreeSet<>(crawlerDataEvent.data.keySet())) {
             String value = crawlerDataEvent.data.getString(key);
             if (builder.length() > 0) {
                 builder.append("&");

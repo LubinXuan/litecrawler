@@ -23,7 +23,7 @@ public class PlatformAssetsTypeProcessor extends BaseMatchPageProcessor {
     public MatchOther processPage(Page page) {
         Object value = JSONPath.read(page.getRawText(), "pie1.key");
         if (value instanceof JSONArray) {
-            page.putField(Param.plat.assetstype, StringUtils.join((JSONArray) value, "|"));
+            page.putField(Param.plat.assetstype, StringUtils.join((JSONArray) value, " | "));
         }
         page.getRequest().getExtras().forEach(page::putField);
         CralwData.platData(page.getResultItems());

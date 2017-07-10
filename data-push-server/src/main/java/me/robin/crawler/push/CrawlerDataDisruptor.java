@@ -5,11 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +18,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -146,7 +145,19 @@ public class CrawlerDataDisruptor {
                 requestBuilder.url("http://" + server + api);
                 RequestBody requestBody = RequestBody.create(APPLICATION_JSON, crawlerDataEvent.data.toJSONString());
                 Request request = requestBuilder.post(requestBody).build();
-                //client.newCall(request).execute();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    if (response.code() != 200) {
+                        logger.warn("数据提交服务器响应异常:{}", response.code());
+                        pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
+                    }
+                } catch (IOException e) {
+                    logger.warn("数据提交服务器异常");
+                    pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
+                } finally {
+                    IOUtils.closeQuietly(response);
+                }
             } finally {
                 crawlerDataEvent.setData(null);
                 crawlerDataEvent.setDataType(null);

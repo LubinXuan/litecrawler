@@ -35,6 +35,7 @@
 
         <logger name="org.springframework" level="warn"/>
         <logger name="us.codecraft.webmagic.downloader" level="warn"/>
+        <logger name="io.webfolder.cdp" level="warn"/>
         <logger name="org.apache.http" level="warn"/>
 
         <Root level="info">

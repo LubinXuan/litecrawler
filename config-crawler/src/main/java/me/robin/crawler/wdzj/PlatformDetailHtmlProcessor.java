@@ -6,6 +6,7 @@ import me.robin.crawler.common.CralwData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.selector.CssSelector;
 
 /**
@@ -24,9 +25,14 @@ public class PlatformDetailHtmlProcessor extends BaseMatchPageProcessor {
     @Override
     public MatchOther processPage(Page page) {
         String value = page.getHtml().selectDocument(new CssSelector("div.cen-zk", "allText"));
-        page.putField(Param.plat.instruction, value);
-        page.getRequest().getExtras().forEach(page::putField);
-        CralwData.platData(page.getResultItems());
+        page.getRequest().putExtra(Param.plat.instruction, value);
+
+        Request request = new Request(PlatformAssetsTypeProcessor.url + page.getHtml().$("#platId","value") + ".html");
+        request.setExtras(page.getRequest().getExtras());
+        request.addHeader("referer", page.getRequest().getHeaders().get("referer"));
+        request.setPriority(1);
+        page.addTargetRequest(request);
+        page.getResultItems().setSkip(true);
         return MatchOther.NO;
     }
 }

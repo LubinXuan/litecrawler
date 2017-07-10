@@ -56,6 +56,8 @@ public interface Param {
         String totaldeal = "totaldeal";
         String totaluser = "totaluser";
         String yield = "yield";
+        String assetstype = "assetstype";
+        String location = "location";
     }
 
     interface product {

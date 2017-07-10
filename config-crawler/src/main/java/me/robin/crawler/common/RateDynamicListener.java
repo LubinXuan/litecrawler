@@ -40,10 +40,10 @@ public class RateDynamicListener implements SpiderListener {
         logger.debug("页面[{}]下载成功", request.getUrl());
         if (errorUrls.remove(request.getUrl())) {
             synchronized (this) {
-                if (spider.getSite().getSleepTime() <= minSleepTime) {
-                    spider.getSite().setSleepTime(minSleepTime);
+                if (spider.getSite().getSleepTime() <= minSleepTime * 1000) {
+                    spider.getSite().setSleepTime(minSleepTime * 1000);
                 } else {
-                    spider.getSite().setSleepTime(spider.getSite().getSleepTime() - 1);
+                    spider.getSite().setSleepTime(spider.getSite().getSleepTime() - 1000);
                 }
             }
         }
@@ -53,8 +53,8 @@ public class RateDynamicListener implements SpiderListener {
     public void onError(Request request) {
         errorUrls.add(request.getUrl());
         synchronized (this) {
-            if (spider.getSite().getSleepTime() < maxSleepTime) {
-                spider.getSite().setSleepTime(spider.getSite().getSleepTime() + 1);
+            if (spider.getSite().getSleepTime() < maxSleepTime * 1000) {
+                spider.getSite().setSleepTime(spider.getSite().getSleepTime() + 1000);
             }
         }
     }

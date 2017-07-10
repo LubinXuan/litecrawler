@@ -29,8 +29,6 @@ public class ProductProcessors {
      */
     public static class ProductDetailProcessor extends RegexProcessor {
 
-        private static final ThreadLocal<NumberFormat> nf = ThreadLocal.withInitial(() -> new DecimalFormat("#0.##"));
-
         public ProductDetailProcessor() {
             super("http://licai.p2peye.com/loans/details-(\\d+?).html");
         }
@@ -45,9 +43,9 @@ public class ProductProcessors {
             String stage = StringUtils.replace(page.getHtml().$("div.dt2 div.bot", "allText").get(), "%", "");
             if (StringUtils.contains(stage, "个月")) {
                 stage = StringUtils.remove(stage, "个月");
+                stage = Integer.toString((int) Float.parseFloat(stage) * 30);
             } else if (StringUtils.contains(stage, "天")) {
                 stage = StringUtils.remove(stage, "天");
-                stage = nf.get().format(Integer.parseInt(stage) / (float) 30);
             }
 
             String instruction = page.getHtml().$("div.pdetails", "allText").get();

@@ -71,11 +71,17 @@ public class DataPushServlet extends HttpServlet {
         String data = IOUtils.toString(req.getInputStream(), Charset.forName("utf-8"));
         String dataType = req.getHeader("data-type");
         String key = req.getHeader("source-type");
-        String prefix = key + "-" + dateKey + "-";
-        AtomicInteger increment = idCache.computeIfAbsent(prefix, s -> new AtomicInteger(0));
         JSONObject jsonData = JSON.parseObject(data);
-        String serialNo = prefix + nf.get().format(increment.incrementAndGet());
-        jsonData.put("serialno", serialNo);
+        String uid = jsonData.getString("uid");
+        if (StringUtils.isNotBlank(uid)) {
+            jsonData.put("serialno", key + "-" + uid);
+            jsonData.remove("uid");
+        } else {
+            String prefix = key + "-" + dateKey + "-";
+            AtomicInteger increment = idCache.computeIfAbsent(prefix, s -> new AtomicInteger(0));
+            String serialNo = prefix + nf.get().format(increment.incrementAndGet());
+            jsonData.put("serialno", serialNo);
+        }
         crawlerDataDisruptor.pushData(dataType, jsonData);
     }
 

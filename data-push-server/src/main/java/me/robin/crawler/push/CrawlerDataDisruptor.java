@@ -1,6 +1,5 @@
 package me.robin.crawler.push;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -20,7 +19,10 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -36,6 +38,8 @@ public class CrawlerDataDisruptor {
     private static final Logger logger = LoggerFactory.getLogger(CrawlerDataDisruptor.class);
 
     private static final ThreadLocal<Cipher> CIPHER_LOCAL = new ThreadLocal<>();
+
+    private static final OkHttpClient client = new OkHttpClient();
 
     @Value("${crawler.server}")
     private String server;
@@ -56,9 +60,15 @@ public class CrawlerDataDisruptor {
         disruptor = new Disruptor<>(eventFactory,
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI,
                 new YieldingWaitStrategy());
-        EventHandler eventHandler = new CrawlerDataEventHandler();
-        disruptor.handleEventsWith(eventHandler);
-        disruptor.setDefaultExceptionHandler(new ExceptionHandler<CrawlerDataEvent>() {
+        RingBuffer<CrawlerDataEvent> ringBuffer = disruptor.getRingBuffer();
+
+        SequenceBarrier barriers = ringBuffer.newBarrier();
+        // 创建10个消费者来处理同一个生产者发的消息(这10个消费者不重复消费消息)
+        WorkHandler<CrawlerDataEvent>[] consumers = new CrawlerDataWorkHandler[10];
+        for (int i = 0; i < consumers.length; i++) {
+            consumers[i] = new CrawlerDataWorkHandler();
+        }
+        WorkerPool<CrawlerDataEvent> workerPool = new WorkerPool<>(ringBuffer, barriers, new ExceptionHandler<CrawlerDataEvent>() {
             @Override
             public void handleEventException(Throwable throwable, long l, CrawlerDataEvent event) {
                 logger.warn("处理数据 {} {} 异常", event.dataType, event.data, throwable);
@@ -73,7 +83,9 @@ public class CrawlerDataDisruptor {
             public void handleOnShutdownException(Throwable throwable) {
                 logger.warn("停止disruptor异常 {}", throwable.toString());
             }
-        });
+        }, consumers);
+
+        workerPool.start(Executors.newFixedThreadPool(4));
     }
 
     @PostConstruct
@@ -115,12 +127,10 @@ public class CrawlerDataDisruptor {
     }
 
 
-    private class CrawlerDataEventHandler implements EventHandler<CrawlerDataEvent> {
-
-        OkHttpClient client = new OkHttpClient();
+    private class CrawlerDataWorkHandler implements WorkHandler<CrawlerDataEvent> {
 
         @Override
-        public void onEvent(CrawlerDataEvent crawlerDataEvent, long l, boolean b) throws Exception {
+        public void onEvent(CrawlerDataEvent crawlerDataEvent) throws Exception {
 
             if (null == crawlerDataEvent.data) {
                 return;

@@ -3,6 +3,7 @@ package me.robin.crawler.p2peye.utils;
 import io.webfolder.cdp.Launcher;
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
+import io.webfolder.cdp.type.network.Cookie;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.ClientCookie;
@@ -18,6 +19,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -53,17 +55,16 @@ public class CookieUpdater {
             try (Session session = factory.create()) {
                 session.navigate(request.getUrl());
                 session.waitDocumentReady();
-                String cookieStr = (String) session.evaluate("document.cookie");
-                String[] cookies = StringUtils.split(cookieStr, ";");
-                if (null != cookies) {
+                List<Cookie> cookieList = session.getCommand().getPage().getCookies();
+                if (null != cookieList && !cookieList.isEmpty()) {
                     try {
                         CookieStore cookieStore = (CookieStore) cookieStoreField.get(clientMethod.invoke(downloader, site));
-                        for (String cookie : cookies) {
-                            String[] pair = StringUtils.split(cookie, "=");
-                            //site.addCookie(pair[0], pair[1]);
-                            BasicClientCookie clientCookie = new BasicClientCookie(pair[0], pair[1]);
+                        for (Cookie cookie : cookieList) {
+                            BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
+                            clientCookie.setDomain(cookie.getDomain());
+                            clientCookie.setPath(cookie.getPath());
                             clientCookie.setDomain(".p2peye.com");
-                            clientCookie.setAttribute(ClientCookie.DOMAIN_ATTR,"1");
+                            clientCookie.setAttribute(ClientCookie.DOMAIN_ATTR, "1");
                             cookieStore.addCookie(clientCookie);
                         }
                     } catch (Exception e) {

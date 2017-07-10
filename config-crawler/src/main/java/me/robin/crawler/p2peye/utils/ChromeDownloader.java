@@ -1,8 +1,12 @@
 package me.robin.crawler.p2peye.utils;
 
 import io.webfolder.cdp.Launcher;
+import io.webfolder.cdp.event.Events;
+import io.webfolder.cdp.event.network.ResponseReceived;
+import io.webfolder.cdp.listener.EventListener;
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
+import io.webfolder.cdp.type.network.GetResponseBodyResult;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
@@ -12,6 +16,7 @@ import us.codecraft.webmagic.selector.PlainText;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by Lubin.Xuan on 2017-07-10.
@@ -29,30 +34,47 @@ public class ChromeDownloader extends AbstractDownloader {
         factory = launcher.launch(chromeBin, Arrays.asList("--headless", "--disable-gpu"));
     }
 
+    private synchronized Session createSession() {
+        Session session = sessions.poll();
+
+        if (null == session) {
+            session = factory.create();
+            session.getCommand().getNetwork().enable();
+        }
+
+        return session;
+    }
+
     @Override
     public Page download(Request request, Task task) {
 
 
-        Session session = sessions.poll();
+        Session session = createSession();
 
         try {
-            if (null == session) {
-                session = factory.create();
-            }
-
-            session.navigate(request.getUrl());
-
-            session.waitDocumentReady();
-
-            String content = (String) session.getProperty("*","outerHTML");
-
-            session.getCommand().getPage();
 
             Page page = new Page();
-            page.setRawText(content);
+
+            session.addEventListener(new EventListener<Object>() {
+                @Override
+                public void onEvent(Events event, Object value) {
+                    if (Events.NetworkResponseReceived.equals(event) && value instanceof ResponseReceived) {
+                        ResponseReceived received = (ResponseReceived) value;
+                        if (received.getResponse().getUrl().equals(request.getUrl())) {
+                            GetResponseBodyResult rb = session.getCommand().getNetwork().getResponseBody(received.getRequestId());
+                            page.setRawText(rb.getBody());
+                            page.setStatusCode(received.getResponse().getStatus().intValue());
+                            synchronized (page) {
+                                page.notify();
+                            }
+                            session.removeEventEventListener(this);
+                        }
+                    }
+                }
+            });
+            session.navigate(request.getUrl());
             page.setUrl(new PlainText(request.getUrl()));
             page.setRequest(request);
-            page.setStatusCode(200);
             return page;
         } finally {
             if (null != session) {

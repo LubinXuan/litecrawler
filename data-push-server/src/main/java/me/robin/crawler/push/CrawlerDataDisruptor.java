@@ -64,32 +64,8 @@ public class CrawlerDataDisruptor {
         disruptor = new Disruptor<>(eventFactory,
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.SINGLE,
                 new YieldingWaitStrategy());
-        RingBuffer<CrawlerDataEvent> ringBuffer = disruptor.getRingBuffer();
-
-        SequenceBarrier barriers = ringBuffer.newBarrier();
-        // 创建10个消费者来处理同一个生产者发的消息(这10个消费者不重复消费消息)
-        WorkHandler<CrawlerDataEvent>[] consumers = new CrawlerDataWorkHandler[10];
-        for (int i = 0; i < consumers.length; i++) {
-            consumers[i] = new CrawlerDataWorkHandler();
-        }
-        WorkerPool<CrawlerDataEvent> workerPool = new WorkerPool<>(ringBuffer, barriers, new ExceptionHandler<CrawlerDataEvent>() {
-            @Override
-            public void handleEventException(Throwable throwable, long l, CrawlerDataEvent event) {
-                logger.warn("处理数据 {} {} 异常", event.dataType, event.data, throwable);
-            }
-
-            @Override
-            public void handleOnStartException(Throwable throwable) {
-                logger.warn("启动disruptor异常 {}", throwable.toString());
-            }
-
-            @Override
-            public void handleOnShutdownException(Throwable throwable) {
-                logger.warn("停止disruptor异常 {}", throwable.toString());
-            }
-        }, consumers);
-
-        workerPool.start(Executors.newFixedThreadPool(4));
+        WorkHandler workHandler = new CrawlerDataHandler();
+        disruptor.handleEventsWithWorkerPool(workHandler,workHandler,workHandler,workHandler);
     }
 
     @PostConstruct
@@ -121,6 +97,11 @@ public class CrawlerDataDisruptor {
         void setDataType(String dataType) {
             this.dataType = dataType;
         }
+
+        void clean() {
+            this.data = null;
+            this.dataType = null;
+        }
     }
 
     private class CrawlerDataEventFactory implements EventFactory<CrawlerDataEvent> {
@@ -131,16 +112,14 @@ public class CrawlerDataDisruptor {
     }
 
 
-    private class CrawlerDataWorkHandler implements WorkHandler<CrawlerDataEvent> {
-
+    private class CrawlerDataHandler implements EventHandler<CrawlerDataEvent>, WorkHandler<CrawlerDataEvent> {
         @Override
-        public void onEvent(CrawlerDataEvent crawlerDataEvent) throws Exception {
-
-            if (null == crawlerDataEvent.data) {
+        public void onEvent(CrawlerDataEvent event) throws Exception {
+            if (null == event.data) {
                 return;
             }
             try {
-                switch (crawlerDataEvent.dataType) {
+                switch (event.dataType) {
                     case "comment":
                     case "plat":
                     case "product":
@@ -149,33 +128,37 @@ public class CrawlerDataDisruptor {
                         return;
                 }
 
-                String api = "/financial-web/api/v1/spider/" + crawlerDataEvent.dataType + "/add";
+                String api = "/financial-web/api/v1/spider/" + event.dataType + "/add";
                 //todo upload data;
-                if (!crawlerDataEvent.data.containsKey("sign")) {
-                    signParam(crawlerDataEvent);
+                if (!event.data.containsKey("sign")) {
+                    signParam(event);
                 }
                 Request.Builder requestBuilder = new Request.Builder();
                 requestBuilder.url("http://" + server + api);
-                RequestBody requestBody = RequestBody.create(APPLICATION_JSON, crawlerDataEvent.data.toJSONString());
+                RequestBody requestBody = RequestBody.create(APPLICATION_JSON, event.data.toJSONString());
                 Request request = requestBuilder.post(requestBody).build();
                 Response response = null;
                 try {
                     response = client.newCall(request).execute();
                     String rsp = null != response.body() ? response.body().string() : "";
                     if (response.code() != 200 || StringUtils.contains(rsp, "验签失败")) {
-                        logger.warn("数据提交服务器响应异常:{}  data:{}  rsp:{}", response.code(), crawlerDataEvent.data.toJSONString(), rsp);
-                        pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
+                        logger.warn("数据提交服务器响应异常:{}  data:{}  rsp:{}", response.code(), event.data.toJSONString(), rsp);
+                        pushData(event.dataType, event.data);
                     }
                 } catch (IOException e) {
                     logger.warn("数据提交服务器异常");
-                    pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
+                    pushData(event.dataType, event.data);
                 } finally {
                     IOUtils.closeQuietly(response);
                 }
             } finally {
-                crawlerDataEvent.setData(null);
-                crawlerDataEvent.setDataType(null);
+                event.clean();
             }
+        }
+
+        @Override
+        public void onEvent(CrawlerDataEvent event, long l, boolean b) throws Exception {
+            this.onEvent(event);
         }
     }
 

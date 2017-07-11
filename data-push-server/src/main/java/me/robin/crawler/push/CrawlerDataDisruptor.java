@@ -62,7 +62,7 @@ public class CrawlerDataDisruptor {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
         int ringBufferSize = (int) Math.pow(2, 15); // RingBuffer 大小，必须是 2 的 N 次方；
         disruptor = new Disruptor<>(eventFactory,
-                ringBufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI,
+                ringBufferSize, Executors.defaultThreadFactory(), ProducerType.SINGLE,
                 new YieldingWaitStrategy());
         RingBuffer<CrawlerDataEvent> ringBuffer = disruptor.getRingBuffer();
 
@@ -164,7 +164,7 @@ public class CrawlerDataDisruptor {
                     String rsp = null != response.body() ? response.body().string() : "";
                     if (response.code() != 200 || StringUtils.contains(rsp, "验签失败")) {
                         logger.warn("数据提交服务器响应异常:{}  data:{}  rsp:{}", response.code(), crawlerDataEvent.data.toJSONString(), rsp);
-                        service.execute(() -> pushData(crawlerDataEvent.dataType, crawlerDataEvent.data));
+                        pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
                     }
                 } catch (IOException e) {
                     logger.warn("数据提交服务器异常");
@@ -193,6 +193,10 @@ public class CrawlerDataDisruptor {
     }
 
     public void pushData(String dataType, JSONObject jsonData) {
+        service.execute(() -> _pushData(dataType, jsonData));
+    }
+
+    private void _pushData(String dataType, JSONObject jsonData) {
         RingBuffer<CrawlerDataEvent> ringBuffer = disruptor.getRingBuffer();
         long sequence = ringBuffer.next();
         try {

@@ -3,6 +3,7 @@ package me.robin.crawler.crawlers.wdzj;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import me.robin.crawler.common.KVStoreClient;
 import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.RegexProcessor;
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ public class PlatformListPageProcessor extends RegexProcessor {
             request = new Request(CommentProcessor.commentUrl(platId, 1));
             request.setMethod(HttpConstant.Method.POST);
             request.putExtra(Param.comment.platname, platName);
+            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.WDZJ + "-" + platName));
             request.addHeader("referer", "http://www.wdzj.com/dangan/" + plat.getString("platNamePin") + "/dianping/");
             page.addTargetRequest(request);
             //}

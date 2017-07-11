@@ -35,12 +35,7 @@ public class SpiderService {
 
     public String getValue(String key) {
         try {
-            return this.queryRunner.query("select * from KV_STORE where key = ?", new ResultSetHandler<String>() {
-                @Override
-                public String handle(ResultSet rs) throws SQLException {
-                    return rs.getString(1);
-                }
-            }, key);
+            return this.queryRunner.query("select value from KV_STORE where key = ? limit 1", rs -> rs.next() ? rs.getString(1) : null, key);
         } catch (SQLException e) {
             logger.warn("数据库读取异常", e);
             return null;

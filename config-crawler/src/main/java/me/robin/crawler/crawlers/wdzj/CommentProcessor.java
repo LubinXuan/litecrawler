@@ -101,7 +101,7 @@ public class CommentProcessor extends RegexProcessor {
             request.addHeader("referer", page.getRequest().getHeaders().get("referer"));
             page.addTargetRequest(request);
         } else {
-            logger.info("评论爬取完成,共爬取评论数;{}   <-{}", commentCrawled, page.getRequest().getUrl());
+            logger.info("评论爬取完成,共爬取评论数;{}   <-{}", commentCrawled, page.getRequest().getHeaders().get("referer"));
         }
         return MatchOther.NO;
     }

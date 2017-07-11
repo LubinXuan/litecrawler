@@ -28,6 +28,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -55,6 +56,7 @@ public class CrawlerDataDisruptor {
 
     private PrivateKey privateKey;
 
+    private ExecutorService service = Executors.newFixedThreadPool(1);
 
     private CrawlerDataDisruptor() {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
@@ -162,7 +164,7 @@ public class CrawlerDataDisruptor {
                     String rsp = null != response.body() ? response.body().string() : "";
                     if (response.code() != 200 || StringUtils.contains(rsp, "验签失败")) {
                         logger.warn("数据提交服务器响应异常:{}  data:{}  rsp:{}", response.code(), crawlerDataEvent.data.toJSONString(), rsp);
-                        pushData(crawlerDataEvent.dataType, crawlerDataEvent.data);
+                        service.execute(() -> pushData(crawlerDataEvent.dataType, crawlerDataEvent.data));
                     }
                 } catch (IOException e) {
                     logger.warn("数据提交服务器异常");

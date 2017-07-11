@@ -126,7 +126,6 @@ public class SpiderManagerApplication {
                 spider.addPipeline(pipeline);
                 spider.setDownloader(downloader).setScheduler(scheduler);
                 spider.setExitWhenComplete(false);
-                SpiderMonitor.instance().register(spider);
                 spider.start();
 
                 statusMap.put(spiderName, new SpiderStatus(spider, monitorSpiderListener));

@@ -1,7 +1,7 @@
-package me.robin.crawler.wdzj;
+package me.robin.crawler.crawlers.wdzj;
 
 import me.robin.crawler.common.BaseMatchPageProcessor;
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.CralwData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

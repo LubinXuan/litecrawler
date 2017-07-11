@@ -1,6 +1,6 @@
 package me.robin.crawler.common;
 
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import us.codecraft.webmagic.ResultItems;
 
 import java.util.HashMap;

@@ -1,6 +1,6 @@
-package me.robin.crawler.p2peye;
+package me.robin.crawler.crawlers.p2peye;
 
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

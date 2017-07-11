@@ -1,14 +1,11 @@
-package me.robin.crawler.p2peye.utils;
+package me.robin.crawler.crawlers.p2peye.utils;
 
 import io.webfolder.cdp.Launcher;
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
 import io.webfolder.cdp.type.network.Cookie;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.ClientCookie;
-import org.apache.http.cookie.SetCookie;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

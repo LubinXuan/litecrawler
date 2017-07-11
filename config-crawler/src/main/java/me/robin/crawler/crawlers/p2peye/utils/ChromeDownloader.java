@@ -1,4 +1,4 @@
-package me.robin.crawler.p2peye.utils;
+package me.robin.crawler.crawlers.p2peye.utils;
 
 import io.webfolder.cdp.Launcher;
 import io.webfolder.cdp.event.Events;
@@ -16,7 +16,6 @@ import us.codecraft.webmagic.selector.PlainText;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by Lubin.Xuan on 2017-07-10.

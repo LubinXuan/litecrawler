@@ -1,6 +1,6 @@
-package me.robin.crawler.p2peye;
+package me.robin.crawler.crawlers.p2peye;
 
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
@@ -9,9 +9,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.handler.CompositePageProcessor;
 import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 /**
  * Created by Lubin.Xuan on 2017-07-06.

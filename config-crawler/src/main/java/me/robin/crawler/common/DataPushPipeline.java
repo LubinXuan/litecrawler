@@ -1,7 +1,7 @@
 package me.robin.crawler.common;
 
 import com.alibaba.fastjson.JSON;
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;

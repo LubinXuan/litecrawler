@@ -1,12 +1,11 @@
-package me.robin.crawler;
+package me.robin.crawler.crawlers;
 
 import me.robin.crawler.common.BizSpider;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RateDynamicListener;
-import me.robin.crawler.p2peye.*;
-import me.robin.crawler.p2peye.utils.ChromeDownloader;
-import me.robin.crawler.p2peye.utils.CookieUpdater;
-import me.robin.crawler.p2peye.utils.HttpDownloader;
+import me.robin.crawler.crawlers.p2peye.*;
+import me.robin.crawler.crawlers.p2peye.utils.CookieUpdater;
+import me.robin.crawler.crawlers.p2peye.utils.HttpDownloader;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -17,7 +16,6 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.scheduler.PriorityScheduler;
 
 import javax.management.JMException;
-import java.util.ArrayList;
 
 /**
  * Created by LubinXuan on 2017/6/3.

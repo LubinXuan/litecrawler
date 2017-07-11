@@ -1,9 +1,9 @@
-package me.robin.crawler.p2peye;
+package me.robin.crawler.crawlers.p2peye;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.util.TypeUtils;
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.RegexProcessor;
 import org.slf4j.Logger;

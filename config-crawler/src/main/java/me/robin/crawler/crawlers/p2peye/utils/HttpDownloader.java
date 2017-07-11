@@ -1,4 +1,4 @@
-package me.robin.crawler.p2peye.utils;
+package me.robin.crawler.crawlers.p2peye.utils;
 
 import org.apache.http.HttpResponse;
 import us.codecraft.webmagic.Page;

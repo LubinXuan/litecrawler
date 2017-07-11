@@ -1,4 +1,4 @@
-package me.robin.crawler;
+package me.robin.crawler.crawlers;
 
 /**
  * Created by LubinXuan on 2017/7/4.

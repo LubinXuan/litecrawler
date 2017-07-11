@@ -1,7 +1,7 @@
-package me.robin.crawler.wdzj;
+package me.robin.crawler.crawlers.wdzj;
 
 import com.alibaba.fastjson.util.TypeUtils;
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RegexProcessor;

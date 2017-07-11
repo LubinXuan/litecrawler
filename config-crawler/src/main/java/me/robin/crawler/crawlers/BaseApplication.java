@@ -1,4 +1,4 @@
-package me.robin.crawler;
+package me.robin.crawler.crawlers;
 
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.KVStoreClient;
@@ -9,7 +9,6 @@ import us.codecraft.webmagic.SpiderListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by LubinXuan on 2017/6/3.

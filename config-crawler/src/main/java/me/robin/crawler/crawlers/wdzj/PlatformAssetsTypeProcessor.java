@@ -1,8 +1,8 @@
-package me.robin.crawler.wdzj;
+package me.robin.crawler.crawlers.wdzj;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.BaseMatchPageProcessor;
 import me.robin.crawler.common.CralwData;
 import org.apache.commons.lang3.StringUtils;

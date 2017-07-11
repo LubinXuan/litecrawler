@@ -1,12 +1,11 @@
-package me.robin.crawler.p2peye;
+package me.robin.crawler.crawlers.p2peye;
 
-import me.robin.crawler.Param;
+import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.KVStoreClient;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Spider;
 
 /**
  * Created by LubinXuan on 2017/6/3.

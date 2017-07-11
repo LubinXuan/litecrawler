@@ -41,7 +41,7 @@ public class BizSpider extends Spider {
         }
     }
 
-    private BizSpider(PageProcessor pageProcessor) {
+    public BizSpider(PageProcessor pageProcessor) {
         super(pageProcessor);
         setExecutorService(Executors.newCachedThreadPool(new NameThreadFactory(pageProcessor.getSite().getDomain())));
     }

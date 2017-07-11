@@ -1,0 +1,16 @@
+swagger:
+  base-package: me.robin.crawler.web
+  api-info:
+    version: 1.0
+    title: ${spring.application.name}
+    description: 爬虫控制
+  contact:
+    name: Lubin.Xuan
+    email: lubin.xuan@gmail.com
+server:
+  port: 9999
+spring:
+  application:
+    name: crawler
+chromeBin: C:\Users\Administrator\AppData\Local\Google\Chrome\Application\chrome.exe
+spiders: config/wdzj.json|config/p2peye.json

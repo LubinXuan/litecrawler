@@ -1,0 +1,37 @@
+{
+  "name": "P2PEYE",
+  "spiders": [
+    {
+      "subType": "common",
+      "basePackage": "me.robin.crawler.crawlers.p2peye",
+      "pageProcessors": [
+        "PlatformDetailProcessor",
+        "PlatformShujuProcessor",
+        "CommentProcessor",
+        "ProductProcessors$ProductDetailProcessor",
+        "ProductProcessors$ProductListProcessor"
+      ],
+      "cookieUpdate": true,
+      "charset": "utf-8",
+      "threadNum": 5,
+      "cycleRetryTimes": 4,
+      "sleepTime": 1,
+      "maxSleepTime": 10,
+      "startUrl": "http://licai.p2peye.com/loans"
+    },
+    {
+      "subType": "list",
+      "basePackage": "me.robin.crawler.crawlers.p2peye",
+      "pageProcessors": [
+        "PlatformHtmlListPageProcessor"
+      ],
+      "cookieUpdate": true,
+      "charset": "gbk",
+      "threadNum": 1,
+      "cycleRetryTimes": 4,
+      "sleepTime": 1,
+      "maxSleepTime": 10,
+      "startUrl": "http://www.p2peye.com/platform/all/"
+    }
+  ]
+}

@@ -15,11 +15,6 @@ import us.codecraft.webmagic.selector.Selectable;
  * {desc}
  */
 public class ProductProcessors {
-    public static void addProcessor(CompositePageProcessor compositePageProcessor) {
-        compositePageProcessor.addSubPageProcessor(new ProductDetailProcessor());
-        compositePageProcessor.addSubPageProcessor(new ProductListProcessor());
-    }
-
     /**
      * Created by Lubin.Xuan on 2017-07-06.
      * {desc}

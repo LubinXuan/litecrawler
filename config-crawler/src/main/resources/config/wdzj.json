@@ -1,8 +1,20 @@
 {
-  "name": "网贷之家",
-  "crawlers": [
+  "name": "WDZJ",
+  "spiders": [
     {
-      "name":""
+      "basePackage": "me.robin.crawler.crawlers.wdzj",
+      "pageProcessors": [
+        "PlatformListPageProcessor",
+        "PlatformDetailProcessor",
+        "PlatformAssetsTypeProcessor",
+        "PlatformDetailHtmlProcessor",
+        "CommentProcessor"
+      ],
+      "threadNum": 5,
+      "cycleRetryTimes": 4,
+      "sleepTime": 1,
+      "maxSleepTime": 10,
+      "startUrl":"http://www.wdzj.com/front_select-plat?sort=0&currPage=1"
     }
   ]
 }

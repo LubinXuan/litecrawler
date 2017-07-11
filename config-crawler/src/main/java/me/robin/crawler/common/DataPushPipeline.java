@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Lubin.Xuan on 2017-07-05.
@@ -36,6 +37,8 @@ public class DataPushPipeline implements Pipeline {
     private final Param.PlatName platName;
 
     private final Map<String, Set<String>> fieldMap = new HashMap<>();
+
+    private final AtomicBoolean serverLock = new AtomicBoolean(false);
 
     public DataPushPipeline(Param.PlatName platName) {
         this.platName = platName;
@@ -102,6 +105,18 @@ public class DataPushPipeline implements Pipeline {
         if (!data.containsKey(Param.source)) {
             data.put(Param.source, platName.getName());
         }
+
+        if (serverLock.get()) {
+            synchronized (serverLock) {
+                try {
+                    serverLock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
         HttpPost post = new HttpPost("/push/data");
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));
         post.setHeader("data-type", dataType);
@@ -114,8 +129,13 @@ public class DataPushPipeline implements Pipeline {
             try {
                 response = client.execute(httpHost, post);
                 if (response.getStatusLine().getStatusCode() == 200) {
+                    serverLock.set(false);
+                    synchronized (serverLock) {
+                        serverLock.notifyAll();
+                    }
                     return;
                 }
+                serverLock.set(true);
                 statusCode = response.getStatusLine().getStatusCode();
             } catch (Exception e) {
                 throwable = e;

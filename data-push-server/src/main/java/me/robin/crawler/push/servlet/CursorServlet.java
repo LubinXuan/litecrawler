@@ -1,5 +1,6 @@
-package me.robin.crawler.push;
+package me.robin.crawler.push.servlet;
 
+import me.robin.crawler.push.KVStore;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;

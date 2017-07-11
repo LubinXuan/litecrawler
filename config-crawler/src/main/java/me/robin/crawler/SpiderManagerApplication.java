@@ -54,7 +54,6 @@ public class SpiderManagerApplication {
     @PostConstruct
     private void init() throws Exception {
 
-        KVStoreClient.host("127.0.0.1", 8080);
         DataPushPipeline.host("127.0.0.1", 8080);
 
         for (String spiderConfig : spiders.split("\\|")) {

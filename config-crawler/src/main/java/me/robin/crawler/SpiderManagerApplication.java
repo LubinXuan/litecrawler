@@ -128,10 +128,20 @@ public class SpiderManagerApplication {
                 spider.setExitWhenComplete(false);
                 spider.start();
 
-                statusMap.put(spiderName, new SpiderStatus(spider, monitorSpiderListener));
+                statusMap.put(spiderName, new SpiderStatusExt(spider, monitorSpiderListener));
                 spiderMap.put(spiderName, spider);
                 spiders[i] = spider;
             }
+        }
+    }
+
+    public class SpiderStatusExt extends SpiderStatus {
+        public SpiderStatusExt(Spider spider, SpiderMonitor.MonitorSpiderListener monitorSpiderListener) {
+            super(spider, monitorSpiderListener);
+        }
+
+        public int getSleepTime() {
+            return spider.getSite().getSleepTime();
         }
     }
 

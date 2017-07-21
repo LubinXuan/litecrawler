@@ -45,12 +45,11 @@ public class PlatformDetailProcessor extends BaseMatchPageProcessor {
             String locationAreaName = platOuterVo.getString("locationAreaName");
             String locationCityName = platOuterVo.getString("locationCityName");
 
-            if (StringUtils.isNotBlank(locationAreaName) && StringUtils.isNotBlank(locationCityName)) {
-                page.getRequest().putExtra(Param.plat.location, locationAreaName + locationCityName);
-            } else if (StringUtils.isNotBlank(locationAreaName) && StringUtils.isBlank(locationCityName)) {
-                page.getRequest().putExtra(Param.plat.location, locationAreaName);
-            } else if (StringUtils.isBlank(locationAreaName) && StringUtils.isNotBlank(locationCityName)) {
-                page.getRequest().putExtra(Param.plat.location, locationCityName);
+            if (StringUtils.isNotBlank(locationAreaName)) {
+                page.getRequest().putExtra(Param.plat.province, locationAreaName);
+            }
+            if (StringUtils.isNotBlank(locationCityName)) {
+                page.getRequest().putExtra(Param.plat.city, locationCityName);
             }
 
             Request request = new Request(PlatformDetailHtmlProcessor.url + platOuterVo.getString("platNamePin") + "/");

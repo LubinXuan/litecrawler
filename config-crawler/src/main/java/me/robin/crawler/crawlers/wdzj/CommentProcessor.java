@@ -77,8 +77,9 @@ public class CommentProcessor extends RegexProcessor {
             commentMap.put(Param.comment.remark, remark);
             commentMap.put(Param.comment.remarktime, remarkTime + " 00:00:00");
             commentMap.put(Param.comment.username, userName);
-            commentMap.put(Param.comment.headimg, comment.$("div.avatar img", "src").get());
+            commentMap.put(Param.comment.headurl, comment.$("div.avatar img", "src").get());
             commentMap.put(Param.comment.useful, comment.$("#useful_" + id, "text").get());
+            commentMap.put(Param.comment.unuseful, comment.$("#nouseful_" + id, "text").get());
             commentMap.put(Param.dataUid, platId + "-" + id);
             String praise = StringUtils.trim(comment.$("span.tags", "text").get());
             if (StringUtils.isBlank(praise)) {

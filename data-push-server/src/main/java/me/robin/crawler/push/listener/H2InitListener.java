@@ -3,6 +3,7 @@ package me.robin.crawler.push.listener;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -20,12 +21,15 @@ public class H2InitListener implements ServletContextListener {
 
     private Server server;
 
+    @Value("${h2.basedir}")
+    private String baseDir;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            logger.info("正在启动h2数据库...");
+            logger.info("正在启动h2数据库...数据目录:{}", baseDir);
             //使用org.h2.tools.Server这个类创建一个H2数据库的服务并启动服务，由于没有指定任何参数，那么H2数据库启动时默认占用的端口就是8082
-            server = Server.createTcpServer("-baseDir","E://spider_db").start();
+            server = Server.createTcpServer("-baseDir", baseDir).start();
             logger.info("h2数据库启动成功...");
         } catch (SQLException e) {
             logger.error("启动h2数据库出错", e);

@@ -54,7 +54,7 @@ public class PlatformListPageProcessor extends RegexProcessor {
             Request request = new Request(PlatformDetailProcessor.url + platId);
             String platName = plat.getString("platName");
             request.putExtra(Param.plat.name, platName);
-            request.putExtra(Param.plat.onlinetime, plat.getString("onlineDate") + " 00:00:00");
+            request.putExtra(Param.plat.onlinetime, plat.getString("onlineDate"));
             request.putExtra(Param.plat.rank, plat.getIntValue("zonghezhishuRank"));
             request.putExtra(Param.plat.score, plat.getFloatValue("zonghezhishu"));
             request.putExtra(Param.plat.yield, plat.getFloatValue("platEarnings"));

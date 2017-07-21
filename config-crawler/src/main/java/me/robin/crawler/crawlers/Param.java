@@ -1,5 +1,8 @@
 package me.robin.crawler.crawlers;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /**
  * Created by LubinXuan on 2017/7/4.
  */
@@ -40,7 +43,8 @@ public interface Param {
         String remarktime = "remarktime";
         String username = "username";
         String praise = "praise";
-        String headimg = "headimg";
+        String headurl = "headurl";
+        String unuseful = "unuseful";
         String useful = "useful";
     }
 
@@ -56,8 +60,9 @@ public interface Param {
         String totaldeal = "totaldeal";
         String totaluser = "totaluser";
         String yield = "yield";
-        String assetstype = "assetstype";
-        String location = "location";
+        String projecttype = "projecttype";
+        String province = "province";
+        String city = "city";
     }
 
     interface product {
@@ -70,5 +75,20 @@ public interface Param {
         String score = "score";
         String stage = "stage";
         String yield = "yield";
+    }
+
+    @Data
+    class DataField {
+        final String name;
+        final Object defVal;
+
+        DataField(String name, Object defVal) {
+            this.name = name;
+            this.defVal = defVal;
+        }
+
+        DataField(String name) {
+            this(name, null);
+        }
     }
 }

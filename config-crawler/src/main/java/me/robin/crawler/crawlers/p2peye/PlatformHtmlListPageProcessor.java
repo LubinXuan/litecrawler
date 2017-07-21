@@ -35,6 +35,16 @@ public class PlatformHtmlListPageProcessor extends BaseMatchPageProcessor {
             } else {
                 Request request = new Request(url);
                 request.putExtra(Param.plat.name, platform.$("a", "title").get());
+                String location = StringUtils.substringAfter(platform.$("p.ui-result-address").get(), "注册地：");
+                String[] _loc = StringUtils.split(location, "|", 2);
+                if (null != _loc) {
+                    if (_loc.length > 0) {
+                        request.putExtra(Param.plat.province, _loc[0]);
+                    }
+                    if (_loc.length > 1) {
+                        request.putExtra(Param.plat.city, _loc[1]);
+                    }
+                }
                 commonSpider.addRequest(request);
             }
         }

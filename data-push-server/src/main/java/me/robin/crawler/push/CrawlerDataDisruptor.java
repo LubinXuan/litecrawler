@@ -5,7 +5,6 @@ import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import okhttp3.*;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,16 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -39,8 +31,6 @@ import java.util.concurrent.Executors;
 public class CrawlerDataDisruptor {
 
     private static final Logger logger = LoggerFactory.getLogger(CrawlerDataDisruptor.class);
-
-    private static final ThreadLocal<Cipher> CIPHER_LOCAL = new ThreadLocal<>();
 
     private static final OkHttpClient client = new OkHttpClient();
 
@@ -58,6 +48,8 @@ public class CrawlerDataDisruptor {
 
     private ExecutorService service = Executors.newFixedThreadPool(1);
 
+    private final ThreadLocal<Signature> signLocal = ThreadLocal.withInitial(this::signature);
+
     private CrawlerDataDisruptor() {
         EventFactory<CrawlerDataEvent> eventFactory = new CrawlerDataEventFactory();
         int ringBufferSize = (int) Math.pow(2, 15); // RingBuffer 大小，必须是 2 的 N 次方；
@@ -65,7 +57,7 @@ public class CrawlerDataDisruptor {
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.SINGLE,
                 new YieldingWaitStrategy());
         WorkHandler workHandler = new CrawlerDataHandler();
-        disruptor.handleEventsWithWorkerPool(workHandler,workHandler,workHandler,workHandler);
+        disruptor.handleEventsWithWorkerPool(workHandler, workHandler, workHandler, workHandler);
     }
 
     @PostConstruct
@@ -76,13 +68,14 @@ public class CrawlerDataDisruptor {
         disruptor.start();
     }
 
-    public synchronized Cipher cipher() throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        if (null == CIPHER_LOCAL.get()) {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-            CIPHER_LOCAL.set(cipher);
+    private Signature signature() {
+        try {
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initSign(privateKey);
+            return signature;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return CIPHER_LOCAL.get();
     }
 
     class CrawlerDataEvent {
@@ -162,17 +155,21 @@ public class CrawlerDataDisruptor {
         }
     }
 
-    private void signParam(CrawlerDataEvent crawlerDataEvent) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    private void signParam(CrawlerDataEvent crawlerDataEvent) throws SignatureException {
         StringBuilder builder = new StringBuilder();
         for (String key : new TreeSet<>(crawlerDataEvent.data.keySet())) {
             String value = crawlerDataEvent.data.getString(key);
+            if(StringUtils.isBlank(value)){
+                continue;
+            }
             if (builder.length() > 0) {
                 builder.append("&");
             }
             builder.append(key).append("=").append(value);
         }
-        byte[] signData = cipher().doFinal(DigestUtils.sha1(builder.toString()));
-        crawlerDataEvent.data.put("sign", new String(Base64.getEncoder().encode(signData), Charset.forName("utf-8")));
+        Signature signature = signLocal.get();
+        signature.update(builder.toString().getBytes(Charset.forName("utf-8")));
+        crawlerDataEvent.data.put("sign", new String(Base64.getEncoder().encode(signature.sign()), Charset.forName("utf-8")));
     }
 
     public void pushData(String dataType, JSONObject jsonData) {

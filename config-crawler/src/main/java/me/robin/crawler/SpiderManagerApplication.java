@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
@@ -38,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SpringBootApplication
 @Import(SwaggerConfigure.class)
+@EnableScheduling
 public class SpiderManagerApplication {
     @Value("${spiders}")
     private String spiders;

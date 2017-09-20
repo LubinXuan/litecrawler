@@ -24,11 +24,11 @@ import us.codecraft.webmagic.handler.SubPageProcessor;
 import us.codecraft.webmagic.monitor.SpiderMonitor;
 import us.codecraft.webmagic.monitor.SpiderStatus;
 import us.codecraft.webmagic.pipeline.Pipeline;
-import us.codecraft.webmagic.scheduler.Scheduler;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,18 +47,23 @@ public class SpiderManagerApplication {
     private String pushHost;
     @Value("${push.port}")
     private int pushPort;
+    @Value("${spring.redis.host}")
+    private String redisHost;
+    @Value("${spring.redis.port}")
+    private int redisPort;
 
     private Map<String, Spider> spiderMap = new ConcurrentHashMap<>();
 
     private Map<String, SpiderStatus> statusMap = new ConcurrentHashMap<>();
 
+    private Map<String, String> startUrlMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void init() throws Exception {
 
         DataPushPipeline.host(pushHost, pushPort);
 
-        JedisPool jedisPool = new JedisPool("127.0.0.1", 16380);
+        JedisPool jedisPool = new JedisPool(redisHost, redisPort);
 
         for (String spiderConfig : spiders.split("\\|")) {
             SpiderConfig config = JSON.parseObject(SpiderManagerController.class.getClassLoader().getResourceAsStream(spiderConfig), SpiderConfig.class);
@@ -136,6 +141,9 @@ public class SpiderManagerApplication {
                 statusMap.put(spiderName, new SpiderStatusExt(spider, monitorSpiderListener));
                 spiderMap.put(spiderName, spider);
                 spiders[i] = spider;
+                if (StringUtils.isNotBlank(define.getStartUrl())) {
+                    startUrlMap.put(spiderName, define.getStartUrl());
+                }
             }
         }
     }
@@ -152,12 +160,17 @@ public class SpiderManagerApplication {
 
     @Bean
     public Map<String, Spider> spiderMap() {
-        return spiderMap;
+        return Collections.unmodifiableMap(spiderMap);
     }
 
     @Bean
     public Map<String, SpiderStatus> statusMap() {
-        return statusMap;
+        return Collections.unmodifiableMap(statusMap);
+    }
+
+    @Bean
+    public Map<String, String> startUrlMap() {
+        return Collections.unmodifiableMap(startUrlMap);
     }
 
     public static void main(String[] args) {

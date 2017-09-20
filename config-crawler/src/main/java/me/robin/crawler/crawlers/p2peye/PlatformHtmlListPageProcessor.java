@@ -34,7 +34,11 @@ public class PlatformHtmlListPageProcessor extends BaseMatchPageProcessor {
                 logger.warn("平台数据异常:{}", platform);
             } else {
                 Request request = new Request(url);
-                request.putExtra(Param.plat.name, platform.$("a", "title").get());
+                String platName = platform.$("a", "title").get();
+                if (StringUtils.isBlank(platName)) {
+                    logger.warn("平台名称为空:{}", url);
+                }
+                request.putExtra(Param.plat.name, platName);
                 commonSpider.addRequest(request);
             }
         }

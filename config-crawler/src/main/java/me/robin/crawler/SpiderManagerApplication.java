@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -23,7 +24,6 @@ import us.codecraft.webmagic.handler.SubPageProcessor;
 import us.codecraft.webmagic.monitor.SpiderMonitor;
 import us.codecraft.webmagic.monitor.SpiderStatus;
 import us.codecraft.webmagic.pipeline.Pipeline;
-import us.codecraft.webmagic.scheduler.PriorityScheduler;
 import us.codecraft.webmagic.scheduler.Scheduler;
 
 import javax.annotation.PostConstruct;
@@ -57,6 +57,8 @@ public class SpiderManagerApplication {
     private void init() throws Exception {
 
         DataPushPipeline.host(pushHost, pushPort);
+
+        JedisPool jedisPool = new JedisPool("127.0.0.1", 16380);
 
         for (String spiderConfig : spiders.split("\\|")) {
             SpiderConfig config = JSON.parseObject(SpiderManagerController.class.getClassLoader().getResourceAsStream(spiderConfig), SpiderConfig.class);
@@ -101,11 +103,11 @@ public class SpiderManagerApplication {
                 }
 
                 Downloader downloader;
-                Scheduler scheduler;
+                RedisPrioritySchedulerExt scheduler;
                 if (define.isCookieUpdate()) {
                     CookieUpdater cookieUpdater = new CookieUpdater(chromeBin);
                     downloader = new HttpDownloader(cookieUpdater);
-                    scheduler = new PriorityScheduler() {
+                    scheduler = new RedisPrioritySchedulerExt(jedisPool) {
                         @Override
                         public synchronized Request poll(Task task) {
                             cookieUpdater.waitCookieUpdate();
@@ -114,7 +116,7 @@ public class SpiderManagerApplication {
                     };
                 } else {
                     downloader = new HttpClientDownloader();
-                    scheduler = new PriorityScheduler();
+                    scheduler = new RedisPrioritySchedulerExt(jedisPool);
                 }
 
                 BizSpider spider = (BizSpider) BizSpider.create(pageProcessor).thread(define.getThreadNum());
@@ -126,6 +128,7 @@ public class SpiderManagerApplication {
 
 
                 spider.addPipeline(pipeline);
+                spider.addPipeline(scheduler);
                 spider.setDownloader(downloader).setScheduler(scheduler);
                 spider.setExitWhenComplete(false);
                 spider.start();

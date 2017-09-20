@@ -21,7 +21,7 @@ public class SpiderStartUrlScheduleJob {
     @Resource
     private Map<String, String> startUrlMap;
 
-    @Scheduled(cron = "0 0 6/* * * ?")
+    @Scheduled(cron = "0 0 0/6 * * ?")
     public void pushStartUrl() {
         startUrlMap.forEach((name, url) -> {
             Spider spider = spiderMap.get(name);

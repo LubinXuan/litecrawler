@@ -107,6 +107,10 @@ public class SpiderManagerApplication {
                         subPageProcessor = (SubPageProcessor) constructor.newInstance();
                     }
                     pageProcessor.addSubPageProcessor(subPageProcessor);
+
+                    if(subPageProcessor instanceof SitePrepare){
+                        ((SitePrepare) subPageProcessor).prepare(site);
+                    }
                 }
 
                 Downloader downloader;

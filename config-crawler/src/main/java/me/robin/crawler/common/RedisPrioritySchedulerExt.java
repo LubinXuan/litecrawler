@@ -1,12 +1,9 @@
 package me.robin.crawler.common;
 
-import com.alibaba.fastjson.JSON;
 import org.apache.commons.codec.digest.DigestUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.ResultItems;
-import us.codecraft.webmagic.SpiderListener;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.scheduler.RedisPriorityScheduler;

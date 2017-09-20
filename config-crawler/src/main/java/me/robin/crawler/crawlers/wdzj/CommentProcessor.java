@@ -1,20 +1,25 @@
 package me.robin.crawler.crawlers.wdzj;
 
 import com.alibaba.fastjson.util.TypeUtils;
+import me.robin.crawler.common.SitePrepare;
 import me.robin.crawler.crawlers.Param;
 import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RegexProcessor;
+import me.robin.crawler.crawlers.wdzj.utils.LoginUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.selector.CssSelector;
 import us.codecraft.webmagic.selector.HtmlNode;
 import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +28,7 @@ import java.util.Map;
 /**
  * Created by Lubin.Xuan on 2017-07-05.
  */
-public class CommentProcessor extends RegexProcessor {
+public class CommentProcessor extends RegexProcessor implements SitePrepare {
 
     private static final Logger logger = LoggerFactory.getLogger(CommentProcessor.class);
 
@@ -104,5 +109,24 @@ public class CommentProcessor extends RegexProcessor {
             logger.info("评论爬取完成,共爬取评论数;{}   <-{}  {}", commentCrawled, commentLimit, page.getRequest().getHeaders().get("referer"));
         }
         return MatchOther.NO;
+    }
+
+    @Override
+    public void prepare(Site site) {
+        Header[] headers = LoginUtil.login("18258837523", "1QaZ2WsX");
+        if (null != headers) {
+            for (Header header : headers) {
+                List<HttpCookie> cookieList = HttpCookie.parse(header.getValue());
+                cookieList.forEach(cookie -> {
+                    if (null == cookie.getDomain()) {
+                        site.addCookie(".wdzj.com", cookie.getName(), cookie.getValue());
+                    }else{
+                        site.addCookie(cookie.getDomain(), cookie.getName(), cookie.getValue());
+                    }
+
+                });
+            }
+            logger.info("登陆成功");
+        }
     }
 }

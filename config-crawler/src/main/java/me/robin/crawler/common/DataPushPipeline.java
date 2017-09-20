@@ -95,12 +95,12 @@ public class DataPushPipeline implements Pipeline {
             return;
         }
 
-        Set<String> allFields = fieldMap.get(dataType);
+        /*Set<String> allFields = fieldMap.get(dataType);
         for (String field : allFields) {
             if (!data.containsKey(field)) {
                 data.put(field, "");
             }
-        }
+        }*/
 
         if (!data.containsKey(Param.source)) {
             data.put(Param.source, platName.getName());

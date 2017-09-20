@@ -39,12 +39,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @SpringBootApplication
 @Import(SwaggerConfigure.class)
 public class SpiderManagerApplication {
-
     @Value("${spiders}")
     private String spiders;
-
     @Value("${chromeBin}")
     private String chromeBin;
+    @Value("${push.host}")
+    private String pushHost;
+    @Value("${push.port}")
+    private int pushPort;
 
     private Map<String, Spider> spiderMap = new ConcurrentHashMap<>();
 
@@ -54,7 +56,7 @@ public class SpiderManagerApplication {
     @PostConstruct
     private void init() throws Exception {
 
-        DataPushPipeline.host("127.0.0.1", 8080);
+        DataPushPipeline.host(pushHost, pushPort);
 
         for (String spiderConfig : spiders.split("\\|")) {
             SpiderConfig config = JSON.parseObject(SpiderManagerController.class.getClassLoader().getResourceAsStream(spiderConfig), SpiderConfig.class);

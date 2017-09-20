@@ -14,21 +14,21 @@ public class KVStoreClient {
         KVStoreClient.service = service;
     }
 
-    public static String get(String key) {
+    public static String get(String type, String key) {
 
         if (null == service) {
             return null;
         }
 
-        return service.getValue(key);
+        return service.getValue(type, key);
     }
 
-    public static void set(String key, Object value) {
+    public static void set(String type, String key, Object value) {
 
         if (null == service) {
             return;
         }
 
-        service.setValue(key, String.valueOf(value));
+        service.setValue(type, key, String.valueOf(value));
     }
 }

@@ -1,6 +1,7 @@
 package me.robin.crawler.crawlers.wdzj.utils;
 
 import com.alibaba.fastjson.JSONPath;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -19,6 +20,7 @@ import java.util.List;
  * Created by Lubin.Xuan on 2017-09-20.
  * {desc}
  */
+@Slf4j
 public class LoginUtil {
 
     private static final HttpClient client;
@@ -38,10 +40,13 @@ public class LoginUtil {
             get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.91 Safari/537.36");
             response = client.execute(get);
             String content = EntityUtils.toString(response.getEntity());
-            if (StringUtils.equals("登录成功", (String) JSONPath.read(content, "msg"))) {
+            String msg = (String) JSONPath.read(content, "msg");
+            if (StringUtils.equals("登录成功", msg)) {
                 if (frontLogin()) {
                     return cookieStore.getCookies();
                 }
+            } else {
+                log.warn("网贷之家登录失败:{}", content);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,7 +66,11 @@ public class LoginUtil {
             response = client.execute(get);
             String content = EntityUtils.toString(response.getEntity());
             String data = StringUtils.substringBetween(content, "(", ")");
-            return !StringUtils.equalsIgnoreCase("-1", data);
+            boolean success = !StringUtils.equalsIgnoreCase("-1", data);
+            if (!success) {
+                log.warn("网贷之家前端登录失败：{}", content);
+            }
+            return success;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

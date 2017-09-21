@@ -59,6 +59,7 @@ public class CommentProcessor extends RegexProcessor implements SitePrepare {
 
         if (!loginMore.nodes().isEmpty()) {
             this.login();
+            page.getResultItems().setSkip(true);
             page.addTargetRequest(page.getRequest());
         } else {
             HtmlNode htmlNode = (HtmlNode) page.getHtml().$("ul.commentList div.bor");
@@ -125,7 +126,6 @@ public class CommentProcessor extends RegexProcessor implements SitePrepare {
     @Override
     public void prepare(Site site) {
         this.site = site;
-        this.login();
     }
 
     private void login() {

@@ -28,6 +28,7 @@
         <log4j2.scope>runtime</log4j2.scope>
         <httpclient.version>4.5.2</httpclient.version>
         <httpcore.version>4.4.4</httpcore.version>
+        <webmagic.version>0.7.3</webmagic.version>
     </properties>
 
     <dependencies>
@@ -90,12 +91,12 @@
             <dependency>
                 <groupId>us.codecraft</groupId>
                 <artifactId>webmagic-core</artifactId>
-                <version>0.7.2</version>
+                <version>${webmagic.version}</version>
             </dependency>
             <dependency>
                 <groupId>us.codecraft</groupId>
                 <artifactId>webmagic-extension</artifactId>
-                <version>0.7.2</version>
+                <version>${webmagic.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->

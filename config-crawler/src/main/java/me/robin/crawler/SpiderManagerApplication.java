@@ -1,6 +1,7 @@
 package me.robin.crawler;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import me.robin.crawler.common.*;
 import me.robin.crawler.crawlers.p2peye.utils.CookieUpdater;
 import me.robin.crawler.crawlers.p2peye.utils.HttpDownloader;
@@ -10,8 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
@@ -31,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Lubin.Xuan on 2017-07-11.
@@ -39,7 +43,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @SpringBootApplication
 @Import(SwaggerConfigure.class)
 @EnableScheduling
-public class SpiderManagerApplication {
+@Slf4j
+public class SpiderManagerApplication implements ApplicationListener<ContextRefreshedEvent> {
     @Value("${spiders}")
     private String spiders;
     @Value("${chromeBin}")
@@ -52,6 +57,8 @@ public class SpiderManagerApplication {
     private String redisHost;
     @Value("${spring.redis.port}")
     private int redisPort;
+
+    private AtomicBoolean spiderStart = new AtomicBoolean(false);
 
     private Map<String, Spider> spiderMap = new ConcurrentHashMap<>();
 
@@ -141,8 +148,6 @@ public class SpiderManagerApplication {
                 spider.addPipeline(scheduler);
                 spider.setDownloader(downloader).setScheduler(scheduler);
                 spider.setExitWhenComplete(false);
-                spider.start();
-
                 statusMap.put(spiderName, new SpiderStatusExt(spider, monitorSpiderListener));
                 spiderMap.put(spiderName, spider);
                 spiders[i] = spider;
@@ -176,6 +181,16 @@ public class SpiderManagerApplication {
     @Bean
     public Map<String, String> startUrlMap() {
         return Collections.unmodifiableMap(startUrlMap);
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (spiderStart.compareAndSet(false, true)) {
+            spiderMap.forEach((name, spider) -> {
+                log.info("启动爬虫 {}", name);
+                spider.start();
+            });
+        }
     }
 
     public static void main(String[] args) {

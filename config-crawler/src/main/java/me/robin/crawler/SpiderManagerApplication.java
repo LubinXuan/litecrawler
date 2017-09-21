@@ -19,7 +19,6 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.Downloader;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.handler.CompositePageProcessor;
 import us.codecraft.webmagic.handler.SubPageProcessor;
 import us.codecraft.webmagic.monitor.SpiderMonitor;
@@ -108,7 +107,7 @@ public class SpiderManagerApplication {
                     }
                     pageProcessor.addSubPageProcessor(subPageProcessor);
 
-                    if(subPageProcessor instanceof SitePrepare){
+                    if (subPageProcessor instanceof SitePrepare) {
                         ((SitePrepare) subPageProcessor).prepare(site);
                     }
                 }
@@ -126,7 +125,7 @@ public class SpiderManagerApplication {
                         }
                     };
                 } else {
-                    downloader = new HttpClientDownloader();
+                    downloader = new OkHttpDownloader();
                     scheduler = new RedisPrioritySchedulerExt(jedisPool);
                 }
 

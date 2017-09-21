@@ -1,10 +1,10 @@
 package me.robin.crawler.crawlers.p2peye.utils;
 
-import org.apache.http.HttpResponse;
+import me.robin.crawler.common.OkHttpDownloader;
+import okhttp3.Response;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.io.IOException;
 
@@ -12,7 +12,7 @@ import java.io.IOException;
  * Created by Lubin.Xuan on 2017-07-10.
  * {desc}
  */
-public class HttpDownloader extends HttpClientDownloader {
+public class HttpDownloader extends OkHttpDownloader {
 
     private final CookieUpdater cookieUpdater;
 
@@ -21,12 +21,11 @@ public class HttpDownloader extends HttpClientDownloader {
     }
 
     @Override
-    protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task) throws IOException {
-        Page page = super.handleResponse(request, charset, httpResponse, task);
+    protected void handleResponse(Request request, String charset, Response httpResponse, Task task,Page page) throws IOException {
+        super.handleResponse(request, charset, httpResponse, task,page);
         if (page.getStatusCode() == 521) {
             page.setDownloadSuccess(false);
             this.cookieUpdater.update(this, task.getSite(), request);
         }
-        return page;
     }
 }

@@ -2,14 +2,18 @@ package me.robin.crawler.crawlers.wdzj.utils;
 
 import com.alibaba.fastjson.JSONPath;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Lubin.Xuan on 2017-09-20.
@@ -17,9 +21,17 @@ import java.io.IOException;
  */
 public class LoginUtil {
 
-    private static final HttpClient client = HttpClients.createDefault();
+    private static final HttpClient client;
 
-    public static Header[] login(String username, String password) {
+    private static final CookieStore cookieStore = new BasicCookieStore();
+
+    static {
+        HttpClientBuilder builder = HttpClients.custom();
+        builder.setDefaultCookieStore(cookieStore);
+        client = builder.build();
+    }
+
+    public static List<Cookie> login(String username, String password) {
         HttpGet get = new HttpGet("https://passport.wdzj.com/userInterface/login?t=" + System.currentTimeMillis() + "&username=" + username + "&password=" + password + "&auto_login=0");
         HttpResponse response = null;
         try {
@@ -27,7 +39,9 @@ public class LoginUtil {
             response = client.execute(get);
             String content = EntityUtils.toString(response.getEntity());
             if (StringUtils.equals("登录成功", (String) JSONPath.read(content, "msg"))) {
-                return response.getHeaders("set-cookie");
+                if (frontLogin()) {
+                    return cookieStore.getCookies();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,5 +51,24 @@ public class LoginUtil {
                 EntityUtils.consumeQuietly(response.getEntity());
         }
         return null;
+    }
+
+    private static boolean frontLogin() {
+        HttpGet get = new HttpGet("http://www.wdzj.com/front/login?callback=a");
+        HttpResponse response = null;
+        try {
+            get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.91 Safari/537.36");
+            response = client.execute(get);
+            String content = EntityUtils.toString(response.getEntity());
+            String data = StringUtils.substringBetween(content, "(", ")");
+            return !StringUtils.equalsIgnoreCase("-1", data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            get.releaseConnection();
+            if (null != response)
+                EntityUtils.consumeQuietly(response.getEntity());
+        }
+        return false;
     }
 }

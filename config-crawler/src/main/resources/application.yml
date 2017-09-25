@@ -12,10 +12,12 @@ server:
 spring:
   application:
     name: crawler
-  datasource:
-    url: jdbc:h2:tcp://127.0.0.1:9092/lite_crawler;MODE=MySQL
-    username: crawler
-    password: X900907
-    driver-class-name: org.h2.Driver
-chromeBin: C:\Windows\System32\config\systemprofile\AppData\Local\Google\Chrome\Application\chrome.exe
+  redis:
+    host: 127.0.0.1
+    port: 16380
+    database: 1
+chromeBin: C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 spiders: config/wdzj.json|config/p2peye.json
+push:
+  host: 127.0.0.1
+  port: 8080

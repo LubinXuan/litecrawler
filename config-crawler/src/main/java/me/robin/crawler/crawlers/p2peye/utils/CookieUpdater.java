@@ -4,6 +4,7 @@ import io.webfolder.cdp.Launcher;
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
 import io.webfolder.cdp.type.network.Cookie;
+import me.robin.crawler.common.WaitUtil;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -86,14 +87,6 @@ public class CookieUpdater {
     }
 
     public void waitCookieUpdate() {
-        if (update.get()) {
-            synchronized (update) {
-                try {
-                    update.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        WaitUtil.waitObject(update);
     }
 }

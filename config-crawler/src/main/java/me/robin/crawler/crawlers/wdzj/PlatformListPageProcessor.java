@@ -67,7 +67,7 @@ public class PlatformListPageProcessor extends RegexProcessor {
             request = new Request(CommentProcessor.commentUrl(platId, 1));
             request.setMethod(HttpConstant.Method.POST);
             request.putExtra(Param.comment.platname, platName);
-            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.WDZJ + "-" + platName));
+            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.WDZJ.name(), platName));
             request.addHeader("referer", "http://www.wdzj.com/dangan/" + plat.getString("platNamePin") + "/dianping/");
             page.addTargetRequest(request);
             //}

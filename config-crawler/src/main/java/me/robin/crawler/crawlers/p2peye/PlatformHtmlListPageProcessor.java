@@ -34,6 +34,11 @@ public class PlatformHtmlListPageProcessor extends BaseMatchPageProcessor {
                 logger.warn("平台数据异常:{}", platform);
             } else {
                 Request request = new Request(url);
+                String platName = platform.$("a", "title").get();
+                if (StringUtils.isBlank(platName)) {
+                    logger.warn("平台名称为空:{}", url);
+                }
+                request.putExtra(Param.plat.name, platName);
                 request.putExtra(Param.plat.name, platform.$("a", "title").get());
                 String location = StringUtils.substringAfter(platform.$("p.ui-result-address").get(), "注册地：");
                 String[] _loc = StringUtils.split(location, "|", 2);

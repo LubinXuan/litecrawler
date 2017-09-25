@@ -75,7 +75,7 @@ public class DataPushPipeline implements Pipeline {
             if (Boolean.TRUE.equals(update)) {
                 Object value = resultItems.get(Param.cursor_limit_save);
                 String key = resultItems.get(Param.cursor_limit_key);
-                KVStoreClient.set(platName.name() + "-" + key, value);
+                KVStoreClient.set(platName.name(), key, value);
             }
             for (Map<String, Object> data : dataList) {
                 String dataType = (String) data.remove(Param.dataType);
@@ -95,27 +95,18 @@ public class DataPushPipeline implements Pipeline {
             return;
         }
 
-        Set<String> allFields = fieldMap.get(dataType);
+        /*Set<String> allFields = fieldMap.get(dataType);
         for (String field : allFields) {
             if (!data.containsKey(field)) {
                 data.put(field, "");
             }
-        }
+        }*/
 
         if (!data.containsKey(Param.source)) {
             data.put(Param.source, platName.getName());
         }
 
-        if (serverLock.get()) {
-            synchronized (serverLock) {
-                try {
-                    serverLock.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
+        WaitUtil.waitObject(serverLock);
 
         HttpPost post = new HttpPost("/push/data");
         post.setEntity(new StringEntity(JSON.toJSONString(data), Charset.forName("utf-8")));

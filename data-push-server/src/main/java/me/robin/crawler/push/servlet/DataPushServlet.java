@@ -70,6 +70,11 @@ public class DataPushServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (crawlerDataDisruptor.remainingCapacity() < 1) {
+            resp.setStatus(403);
+            return;
+        }
+
         String data = IOUtils.toString(req.getInputStream(), Charset.forName("utf-8"));
         String dataType = req.getHeader("data-type");
         String key = req.getHeader("source-type");

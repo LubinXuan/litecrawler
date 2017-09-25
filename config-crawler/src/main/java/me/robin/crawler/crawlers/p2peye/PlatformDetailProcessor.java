@@ -41,7 +41,7 @@ public class PlatformDetailProcessor extends RegexProcessor {
         if (!StringUtils.equals(count, "口碑")) {
             request = new Request(page.getRequest().getUrl() + "/comment/");
             request.putExtra(Param.comment.platname, page.getRequest().getExtra(Param.plat.name));
-            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.P2PEYE.name() + "-" + page.getRequest().getExtra(Param.plat.name)));
+            request.putExtra(Param.cursor_limit, KVStoreClient.get(Param.PlatName.P2PEYE.name(), (String) page.getRequest().getExtra(Param.plat.name)));
             request.setPriority(1);
             page.addTargetRequest(request);
         }

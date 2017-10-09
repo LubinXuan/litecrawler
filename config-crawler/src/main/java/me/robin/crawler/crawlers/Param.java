@@ -46,6 +46,7 @@ public interface Param {
         String headurl = "headurl";
         String unuseful = "unuseful";
         String useful = "useful";
+        String headimg = "headimg";
     }
 
     interface plat {

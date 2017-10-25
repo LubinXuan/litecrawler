@@ -6,11 +6,14 @@ import me.robin.crawler.common.CralwData;
 import me.robin.crawler.common.DataPushPipeline;
 import me.robin.crawler.common.RegexProcessor;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.selector.HtmlNode;
+import us.codecraft.webmagic.selector.HtmlNodeUtils;
 import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.HttpConstant;
 
@@ -41,7 +44,7 @@ public class CommentProcessor extends RegexProcessor {
             commentCrawled = 0;
         }
 
-        String platId = page.getHtml().$("a[data-platId]","data-platId").get();
+        String platId = page.getHtml().$("a[data-platId]", "data-platId").get();
 
         List<Map<String, Object>> commentList = new ArrayList<>();
         for (Selectable comment : comments.nodes()) {
@@ -57,15 +60,19 @@ public class CommentProcessor extends RegexProcessor {
                 page.putField(Param.cursor_limit_key, page.getRequest().getExtra(Param.comment.platname));
             }
 
+            Elements elements = HtmlNodeUtils.from(comment);
+            elements.select("div.comment span:more").remove();
+
+
             Map<String, Object> data = CralwData.commentData();
             data.put(Param.comment.platname, page.getRequest().getExtra(Param.comment.platname));
-            data.put(Param.comment.remark, comment.$("div.comment", "allText").get());
-            data.put(Param.comment.remarktime, comment.$("div.time", "allText").get());
-            data.put(Param.comment.username, comment.$("a.username", "allText").get());
-            data.put(Param.comment.praise, comment.$("div.commentcore", "allText").get());
-            data.put(Param.comment.headurl,comment.$("img.actor","src").get());
-            data.put(Param.comment.useful,comment.$("a.praise","allText").get());
-            data.put(Param.comment.unuseful,0);
+            data.put(Param.comment.remark, elements.select("div.comment").text());
+            data.put(Param.comment.remarktime, elements.select("div.time").text());
+            data.put(Param.comment.username, elements.select("a.username").text());
+            data.put(Param.comment.praise, elements.select("div.commentcore").text());
+            data.put(Param.comment.headurl, elements.select("img.actor").attr("src"));
+            data.put(Param.comment.useful, elements.select("a.praise").text());
+            data.put(Param.comment.unuseful, 0);
             data.put(Param.dataUid, platId + "-" + id);
             commentList.add(data);
             commentCrawled++;

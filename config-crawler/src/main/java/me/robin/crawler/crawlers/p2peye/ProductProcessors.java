@@ -50,6 +50,7 @@ public class ProductProcessors {
             page.putField(Param.product.repaymenttype, repaymentType);
             page.putField(Param.product.stage, stage);
             page.putField(Param.product.instruction, instruction);
+            page.putField(Param.product.score, 0);
             page.putField(Param.dataUid, StringUtils.substringBetween(page.getRequest().getUrl(), "details-", ".html"));
             page.putField(Param.dataType, Param.product.class.getSimpleName());
             return MatchOther.NO;

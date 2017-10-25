@@ -57,7 +57,7 @@ public class CrawlerDataDisruptor {
                 ringBufferSize, Executors.defaultThreadFactory(), ProducerType.SINGLE,
                 new YieldingWaitStrategy());
         WorkHandler workHandler = new CrawlerDataHandler();
-        disruptor.handleEventsWithWorkerPool(workHandler, workHandler, workHandler, workHandler);
+        disruptor.handleEventsWithWorkerPool(workHandler, workHandler);
     }
 
     @PostConstruct

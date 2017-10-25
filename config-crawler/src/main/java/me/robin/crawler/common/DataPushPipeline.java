@@ -2,6 +2,7 @@ package me.robin.crawler.common;
 
 import com.alibaba.fastjson.JSON;
 import me.robin.crawler.crawlers.Param;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -95,16 +96,18 @@ public class DataPushPipeline implements Pipeline {
             return;
         }
 
-        /*Set<String> allFields = fieldMap.get(dataType);
+        Set<String> allFields = fieldMap.get(dataType);
         for (String field : allFields) {
-            if (!data.containsKey(field)) {
-                data.put(field, "");
+            Object value = data.get(field);
+            if (value instanceof String) {
+                data.put(field, StringUtils.trim((String) value));
             }
-        }*/
+        }
 
         if (!data.containsKey(Param.source)) {
             data.put(Param.source, platName.getName());
         }
+
 
         WaitUtil.waitObject(serverLock);
 

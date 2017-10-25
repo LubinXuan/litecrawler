@@ -35,7 +35,7 @@
 
         <logger name="org.springframework" level="warn"/>
         <logger name="us.codecraft.webmagic" level="warn"/>
-        <logger name="me.robin.crawler.crawlers.p2peye.utils.HttpDownloader" level="warn"/>
+        <logger name="me.robin.crawler.common.OkHttpDownloader" level="debug"/>
         <logger name="io.webfolder.cdp" level="warn"/>
         <logger name="org.apache.http" level="warn"/>
         <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="error"/>
